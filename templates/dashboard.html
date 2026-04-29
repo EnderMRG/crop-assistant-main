@@ -8,69 +8,72 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css?v=20260430-overhaul">
     <style>
         .dashboard-container { max-width: 1400px; margin: 0 auto; }
         .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-        .dashboard-header h1 { font-size: 1.8rem; }
-        .btn-logout { padding: 10px 20px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-        .btn-logout:hover { transform: translateY(-2px); }
+        .dashboard-header h1 { font-size: 1.8rem; color: var(--primary); font-weight: 800; }
+        .btn-logout { padding: 10px 20px; background: linear-gradient(135deg, var(--accent-danger) 0%, #dc2626 100%); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-weight: 600; }
+        .btn-logout:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 
         .farm-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
-        .summary-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
-        .summary-label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
-        .summary-value { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .summary-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm); transition: all 0.3s; }
+        .summary-card:hover { border-color: var(--border-primary); box-shadow: var(--shadow-md); }
+        .summary-label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .summary-value { font-size: 2rem; font-weight: 800; color: var(--primary); font-family: 'JetBrains Mono', monospace; }
 
-        .crops-section { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin-bottom: 32px; }
+        .crops-section { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; padding: 24px; margin-bottom: 32px; box-shadow: var(--shadow-sm); }
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .section-header h2 { font-size: 1.4rem; }
-        .btn-add-crop { padding: 10px 20px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-        .btn-add-crop:hover { transform: translateY(-2px); }
+        .section-header h2 { font-size: 1.4rem; color: var(--text-primary); font-weight: 800; }
+        .btn-add-crop { padding: 10px 20px; background: linear-gradient(135deg, var(--accent-success) 0%, #059669 100%); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-weight: 600; }
+        .btn-add-crop:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25); }
 
         .crops-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-        .crop-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; transition: all 0.3s; }
-        .crop-card:hover { border-color: var(--text-accent); transform: translateY(-2px); }
-        .crop-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
+        .crop-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; padding: 16px; transition: all 0.3s; box-shadow: var(--shadow-sm); }
+        .crop-card:hover { border-color: var(--border-primary); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .crop-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; color: var(--text-primary); }
         .crop-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; font-size: 0.85rem; }
         .crop-info-item { }
-        .crop-info-label { color: var(--text-muted); font-size: 0.75rem; }
+        .crop-info-label { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2px; }
         .crop-info-value { color: var(--text-primary); font-weight: 600; }
-        .crop-status { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
-        .crop-status.growing { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-        .crop-status.harvesting { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
-        .crop-status.harvested { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
-        .crop-status.added { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .crop-status { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+        .crop-status.growing { background: rgba(16, 185, 129, 0.2); color: var(--accent-success); }
+        .crop-status.harvesting { background: rgba(245, 158, 11, 0.2); color: var(--accent-warning); }
+        .crop-status.harvested { background: rgba(100, 116, 139, 0.2); color: var(--text-secondary); }
+        .crop-status.added { background: rgba(20, 145, 155, 0.2); color: var(--primary); }
 
         .crop-actions { display: flex; gap: 8px; margin-top: 12px; }
-        .btn-crop { flex: 1; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.3s; font-size: 0.85rem; }
-        .btn-crop:hover { background: var(--bg-input); }
-        .btn-analyze { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff; }
-        .btn-delete { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #fff; }
+        .btn-crop { flex: 1; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--border-light); border-radius: 6px; cursor: pointer; transition: all 0.3s; font-size: 0.85rem; font-weight: 600; }
+        .btn-crop:hover { border-color: var(--border-primary); background: var(--bg-card); }
+        .btn-analyze { background: linear-gradient(135deg, var(--accent-info) 0%, #1d4ed8 100%); color: #fff; border: none; }
+        .btn-delete { background: linear-gradient(135deg, var(--accent-danger) 0%, #dc2626 100%); color: #fff; border: none; }
 
         .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
         .empty-icon { font-size: 48px; margin-bottom: 16px; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); z-index: 1000; align-items: center; justify-content: center; }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         .modal.show { display: flex; }
-        .modal-content { background: var(--bg-card); border-radius: 12px; padding: 32px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .modal-content { background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: 12px; padding: 32px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: var(--shadow-xl); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .modal-header h2 { font-size: 1.4rem; }
-        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
+        .modal-header h2 { font-size: 1.4rem; color: var(--text-primary); font-weight: 700; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary); transition: all 0.3s; }
+        .modal-close:hover { color: var(--primary); transform: rotate(90deg); }
 
         .form-group { margin-bottom: 16px; }
-        .form-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary); }
-        .form-input { width: 100%; padding: 10px 12px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-size: 0.9rem; }
-        .form-input:focus { outline: none; border-color: var(--text-accent); }
+        .form-label { display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 8px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.3px; }
+        .form-input { width: 100%; padding: 10px 12px; background: var(--bg-input); border: 1px solid var(--border-light); border-radius: 6px; color: var(--text-primary); font-size: 0.9rem; transition: all 0.3s; }
+        .form-input:hover { border-color: var(--border-primary); }
+        .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(20, 145, 155, 0.1); background: var(--bg-card); }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        .btn-submit { width: 100%; padding: 12px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
-        .btn-submit:hover { transform: translateY(-2px); }
+        .btn-submit { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; transition: all 0.3s; box-shadow: 0 4px 16px rgba(20, 145, 155, 0.25); }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(20, 145, 155, 0.35); }
 
-        .analysis-result { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin-top: 24px; }
+        .analysis-result { background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 12px; padding: 24px; margin-top: 24px; }
         .analysis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
-        .analysis-item { background: var(--bg-card); padding: 12px; border-radius: 8px; }
-        .analysis-label { font-size: 0.75rem; color: var(--text-muted); }
-        .analysis-value { font-size: 1.4rem; font-weight: 700; color: var(--text-accent); }
+        .analysis-item { background: var(--bg-card); padding: 12px; border-radius: 8px; border: 1px solid var(--border-light); }
+        .analysis-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.2px; }
+        .analysis-value { font-size: 1.4rem; font-weight: 700; color: var(--primary); }
     </style>
 </head>
 <body>
@@ -86,7 +89,7 @@
             </div>
         </div>
         <div class="header-right">
-            <a href="/" style="padding:8px 14px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.25);color:#a78bfa;border-radius:8px;font-size:0.82rem;font-weight:600;text-decoration:none;transition:all 0.2s;white-space:nowrap;margin-right:12px;" onmouseover="this.style.background='rgba(139,92,246,0.22)'" onmouseout="this.style.background='rgba(139,92,246,0.12)'">🚀 AI Analysis</a>
+            <a href="/" style="padding:8px 14px;background:rgba(20,145,155,0.12);border:1px solid rgba(20,145,155,0.3);color:#14919b;border-radius:8px;font-size:0.82rem;font-weight:600;text-decoration:none;transition:all 0.2s;white-space:nowrap;margin-right:12px;" onmouseover="this.style.background='rgba(20,145,155,0.2)'" onmouseout="this.style.background='rgba(20,145,155,0.12)'">🚀 AI Analysis</a>
             <button class="theme-toggle" id="themeToggle">🌙</button>
             <button class="btn-logout" id="logoutBtn">🚪 Logout</button>
         </div>
@@ -100,7 +103,7 @@
                     <h1 id="farmerName">Farmer's Farm</h1>
                     <p id="farmLocation" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">📍 Loading...</p>
                 </div>
-                <button class="btn-logout" id="analyzeBtn" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); cursor: pointer;" onclick="window.location.href='/analysis'">📊 Analyze & Evaluate</button>
+                <button class="btn-logout" id="analyzeBtn" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); cursor: pointer;" onclick="window.location.href='/analysis'">📊 Analyze & Evaluate</button>
             </div>
 
             <!-- Farm Summary -->
