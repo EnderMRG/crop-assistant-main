@@ -43,6 +43,7 @@ The Smart Farming Decision System is designed to address the challenges faced by
 
 ### Core Features
 ✅ **Crop Recommendation Engine** - ML model predicts best crops based on N/P/K levels, pH, humidity, temperature, and rainfall
+✅ **Disease Detection Engine** - Deep learning (ConvNeXt-V2) based plant disease classification across 30 distinct categories
 ✅ **Yield Prediction** - Forecasts crop yield for selected crops
 ✅ **Price Advisory** - Market price predictions and MSP comparisons
 ✅ **Weather Integration** - Real-time weather data from OpenWeatherMap
@@ -50,11 +51,11 @@ The Smart Farming Decision System is designed to address the challenges faced by
 ✅ **AI-Powered Advisory** - Gemini AI generates contextual farming recommendations
 
 ### UI Features
-✅ **Dual Mode Operation** - Auto (sensor-based) and Manual (user-input) modes
+✅ **Tri-Mode Operation** - Smart Mode (sensor-based), Sensor Mode (manual), and Disease Scan
+✅ **Glassmorphism UI** - Modern, "Corporate Modern" aesthetic with Tailwind CSS and full Dark/Light theme toggling
 ✅ **Multilingual Interface** - English and Assamese language support
 ✅ **Voice Capabilities** - Voice input for ease of use, voice output for accessibility
-✅ **Real-time Charts** - Visualization of yield and price predictions
-✅ **Dark Mode** - User-friendly dark theme
+✅ **Real-time Charts** - Visualization of yield, price, and feature importance
 ✅ **Responsive Design** - Works on desktop, tablet, and mobile devices
 
 ### Data Insights
@@ -69,7 +70,7 @@ The Smart Farming Decision System is designed to address the challenges faced by
 
 ### Backend
 - **Framework**: Flask 3.0+ with Flask-CORS
-- **Machine Learning**: scikit-learn 1.0+, joblib
+- **Machine Learning**: scikit-learn 1.0+, PyTorch (timm, torchvision)
 - **Data Processing**: NumPy, Pandas
 - **Image Processing**: Pillow
 - **Environment Management**: python-dotenv
@@ -89,6 +90,7 @@ The Smart Farming Decision System is designed to address the challenges faced by
 
 ### ML Models
 - **Crop Recommendation**: Random Forest Classifier
+- **Disease Classification**: ConvNeXt-V2 (PyTorch)
 - **Yield Prediction**: Gradient Boosting Regressor
 - **Price Prediction**: Neural Network Regressor
 - **Encoders**: LabelEncoder for categorical variables
@@ -180,7 +182,7 @@ FLASK_DEBUG=True
 
 ### Access the Web Interface
 1. Open your browser and navigate to `http://localhost:5000`
-2. Choose between **Auto Mode** (sensor-based) or **Manual Mode** (user input)
+2. Choose between **Smart Mode** (sensor-based), **Sensor Mode** (manual input), or **Disease Scan**
 3. Enter soil and weather parameters
 4. Click "Get Recommendation" to receive:
    - Top crop recommendations
@@ -216,6 +218,7 @@ crop-assistant/
 │
 ├── crop_model_tuned.pkl           # Crop recommendation model
 ├── crop_encoder.pkl               # Crop label encoder
+├── ConvNeXt-V2.pt                 # Plant disease classification model
 ├── yield_model.pkl                # Yield prediction model
 ├── price_model.pkl                # Price prediction model
 ├── price_encoder.pkl              # Price label encoder
@@ -300,6 +303,7 @@ crop-assistant/
 | Model | Purpose | Algorithm | Accuracy |
 |-------|---------|-----------|----------|
 | Crop Recommendation | Predict best crops | Random Forest | ~95% |
+| Disease Classification | Identify plant diseases | ConvNeXt-V2 | ~96% |
 | Yield Prediction | Forecast crop yield | Gradient Boosting | ~92% |
 | Price Prediction | Market price forecast | Neural Network | ~88% |
 
@@ -319,9 +323,10 @@ Rice, Wheat, Maize, Cotton, Jute, Lentil, Mungbean, Mothbeans, Pigeonpeas, Kidne
 
 ## 📊 System Features in Detail
 
-### Dual Mode Operation
-- **Auto Mode**: Integrates real-time sensor data for continuous monitoring
-- **Manual Mode**: Allows farmers to input soil and weather parameters manually
+### Tri-Mode Operation
+- **Smart Mode**: Integrates real-time sensor data for continuous monitoring with uncluttered UI
+- **Sensor Mode**: Allows farmers to input soil and weather parameters manually
+- **Disease Scan**: Deep learning image analysis for quick plant disease diagnostics
 
 ### Multilingual Support
 - English and Assamese interfaces

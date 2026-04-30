@@ -753,7 +753,11 @@ function displayCharts(data) {
                 datasets: [{ data: fi.map(f => f.importance),
                     backgroundColor: ['#22c55e','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899'],
                     borderWidth: 0 }]
-            }, options: { plugins: { legend: { position: 'bottom', labels: { color: fontColor, font: { size: 10 }, padding: 6 } } } }
+            }, options: {
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: fontColor, font: { size: 10 }, padding: 6 } }
+                }
+            }
         });
     }
 
@@ -766,7 +770,18 @@ function displayCharts(data) {
                     backgroundColor: ['#22c55e44','#3b82f644','#f59e0b44','#ef444444','#8b5cf644','#06b6d444','#ec489944','#14b8a644'],
                     borderColor: ['#22c55e','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#14b8a6'],
                     borderWidth: 1 }]
-            }, options: { plugins: { legend: { position: 'bottom', labels: { color: fontColor, font: { size: 10 }, padding: 6 } } } }
+            }, options: {
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: fontColor, font: { size: 10 }, padding: 6 } }
+                },
+                scales: {
+                    r: {
+                        ticks: { display: false },
+                        grid: { color: 'rgba(100,120,150,.12)' },
+                        pointLabels: { display: false }
+                    }
+                }
+            }
         });
     }
 
@@ -1098,17 +1113,35 @@ function setupSliderSync() {
 
 // ━━━ THEME ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function setupThemeToggle() {
+    const html = document.documentElement;
     const saved = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    document.getElementById('themeIcon').textContent = saved === 'dark' ? '🌙' : '☀️';
+    // Apply saved theme
+    if (saved === 'light') {
+        html.classList.remove('dark');
+    } else {
+        html.classList.add('dark');
+    }
+    _updateThemeIcon(saved);
 
     document.getElementById('themeToggle').addEventListener('click', () => {
-        const curr = document.documentElement.getAttribute('data-theme');
-        const next = curr === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('theme', next);
-        document.getElementById('themeIcon').textContent = next === 'dark' ? '🌙' : '☀️';
+        const isDark = html.classList.contains('dark');
+        if (isDark) {
+            html.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+            _updateThemeIcon('light');
+        } else {
+            html.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+            _updateThemeIcon('dark');
+        }
     });
+}
+
+function _updateThemeIcon(theme) {
+    const icon = document.getElementById('themeIcon');
+    if (!icon) return;
+    // Use material symbol text names
+    icon.textContent = theme === 'dark' ? 'dark_mode' : 'light_mode';
 }
 
 // ━━━ MANDI PRICES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1560,43 +1593,69 @@ function applyLanguage() {
     const isAs = currentLang === 'as';
     document.documentElement.setAttribute('data-lang', currentLang);
 
-    // Toggle button
-    const langBtn = document.getElementById('langToggle');
+    // ── Toggle button label ──────────────────────────────────────────────
     document.getElementById('langText').textContent = isAs ? 'English' : 'অসমীয়া';
-    langBtn.classList.toggle('active', isAs);
+    document.getElementById('langToggle').classList.toggle('active', isAs);
 
-    // Header
-    const h1 = document.querySelector('.logo-text h1');
-    if (h1) h1.textContent = t('app_title');
-    const sub = document.querySelector('.logo-subtitle');
-    if (sub) sub.textContent = t('app_subtitle');
+    // ── Header nav & badges ──────────────────────────────────────────────
+    const aiAnalysisLink = document.querySelector('header nav a[href="/analysis"]');
+    if (aiAnalysisLink) aiAnalysisLink.textContent = isAs ? 'AI বিশ্লেষণ' : 'AI Analysis';
+    const dashLink = document.querySelector('header nav a[href="/dashboard"]');
+    if (dashLink) dashLink.textContent = isAs ? 'ডেচব\'ৰ্ড' : 'Dashboard';
 
-    // Header stats
-    const statTexts = document.querySelectorAll('.header-stat .stat-text');
-    const statKeys = ['live', 'ml_models', 'satellite', 'weather', 'gemini_ai'];
-    statTexts.forEach((el, i) => { if (statKeys[i]) el.textContent = t(statKeys[i]); });
+    // Header status pills
+    const headerPills = document.querySelectorAll('header .font-data-mono');
+    const pillKeys = ['live', 'ml_models', 'satellite', 'gemini_ai'];
+    headerPills.forEach((pill, i) => {
+        const span = pill.querySelector('span:not(.material-symbols-outlined)');
+        if (span && pillKeys[i]) {
+            const txt = t(pillKeys[i]);
+            // Pill may have icon span; only update text node
+            const textNodes = [...pill.childNodes].filter(n => n.nodeType === 3);
+            if (textNodes.length) textNodes[textNodes.length-1].textContent = txt;
+            else if (span) span.textContent = txt;
+        }
+    });
 
-    // Mode tabs
+    // ── Sidebar header ──────────────────────────────────────────────────
+    const sidebarH2 = document.querySelector('#inputPanel h2');
+    if (sidebarH2) sidebarH2.textContent = isAs ? 'তথ্য ইনপুট' : 'Data Input';
+    const sidebarSub = document.querySelector('#inputPanel p.text-slate-400');
+    if (sidebarSub) sidebarSub.textContent = isAs ? 'নিখুঁত কৃষি' : 'Precision Agriculture';
+
+    // ── Mode tabs ────────────────────────────────────────────────────────
     const tabAuto = document.getElementById('tabAuto');
-    const tabManual = document.getElementById('tabManual');
     if (tabAuto) {
-        tabAuto.childNodes.forEach(n => {
-            if (n.nodeType === 3 && n.textContent.trim()) n.textContent = ' ' + t('smart_mode') + '\n';
-        });
-        const s1 = tabAuto.querySelector('small');
-        if (s1) s1.textContent = t('smart_mode_desc');
+        const div = tabAuto.querySelector('div');
+        if (div) {
+            const spanLabel = div.querySelector('span');
+            if (spanLabel) spanLabel.textContent = t('smart_mode');
+            const small = div.querySelector('small');
+            if (small) small.textContent = t('smart_mode_desc');
+        }
     }
+    const tabManual = document.getElementById('tabManual');
     if (tabManual) {
-        tabManual.childNodes.forEach(n => {
-            if (n.nodeType === 3 && n.textContent.trim()) n.textContent = ' ' + t('sensor_mode') + '\n';
-        });
-        const s2 = tabManual.querySelector('small');
-        if (s2) s2.textContent = t('sensor_mode_desc');
+        const div = tabManual.querySelector('div');
+        if (div) {
+            const spanLabel = div.querySelector('span');
+            if (spanLabel) spanLabel.textContent = t('sensor_mode');
+            const small = div.querySelector('small');
+            if (small) small.textContent = t('sensor_mode_desc');
+        }
+    }
+    const tabDisease = document.getElementById('tabDisease');
+    if (tabDisease) {
+        const div = tabDisease.querySelector('div');
+        if (div) {
+            const spanLabel = div.querySelector('span');
+            if (spanLabel) spanLabel.textContent = isAs ? 'ৰোগ স্কেন' : 'Disease Scan';
+            const small = div.querySelector('small');
+            if (small) small.textContent = isAs ? 'পাত আপল\'ড কৰক' : 'Upload Leaf';
+        }
     }
 
-    // Location group
-    const locTitle = document.querySelector('#autoSection .group-title');
-    if (locTitle) locTitle.textContent = t('your_location');
+    // ── Location button ──────────────────────────────────────────────────
     const locBtn = document.getElementById('getLocationBtn');
     if (locBtn && !locBtn.classList.contains('located')) {
         const strong = locBtn.querySelector('strong');
@@ -1605,18 +1664,19 @@ function applyLanguage() {
         if (small) small.textContent = t('detect_desc');
     }
 
-    // Soil group titles
-    const groupTitles = document.querySelectorAll('#autoSection .input-group .group-title');
-    if (groupTitles[1]) groupTitles[1].textContent = t('soil_data');
-    const groupHints = document.querySelectorAll('#autoSection .group-hint');
-    if (groupHints[0]) groupHints[0].textContent = t('soil_hint');
+    // ── Soil group titles (auto section) ────────────────────────────────
+    const autoGroupTitles = document.querySelectorAll('#autoSection h3');
+    if (autoGroupTitles[0]) autoGroupTitles[0].textContent = isAs ? '📍 আপোনাৰ অৱস্থান' : '📍 Your Location';
+    if (autoGroupTitles[1]) autoGroupTitles[1].textContent = t('soil_data');
+    const autoGroupHint = document.querySelector('#autoSection p.group-hint');
+    if (autoGroupHint) autoGroupHint.textContent = t('soil_hint');
 
-    // Manual section titles
-    const manualTitles = document.querySelectorAll('#manualSection .group-title');
+    // ── Manual section titles ────────────────────────────────────────────
+    const manualTitles = document.querySelectorAll('#manualSection h3');
     if (manualTitles[0]) manualTitles[0].textContent = t('soil_nutrients');
     if (manualTitles[1]) manualTitles[1].textContent = t('weather_soil');
 
-    // Input labels
+    // ── Input labels ─────────────────────────────────────────────────────
     const labelMap = {
         'autoN': 'nitrogen', 'autoP': 'phosphorus', 'autoK': 'potassium', 'autoPH': 'soil_ph',
         'inputN': 'nitrogen', 'inputP': 'phosphorus', 'inputK': 'potassium', 'inputPH': 'soil_ph',
@@ -1630,96 +1690,104 @@ function applyLanguage() {
         }
     });
 
-    // Predict button
-    const btnText = document.querySelector('.btn-text');
+    // ── Predict button ───────────────────────────────────────────────────
+    const btnText = document.querySelector('#predictBtn .btn-text');
     if (btnText) btnText.textContent = t('analyze_predict');
 
-    // Welcome
-    const welH2 = document.querySelector('.welcome-state h2');
-    if (welH2) welH2.textContent = t('welcome_title');
-    const welP = document.querySelector('.welcome-state > p');
-    if (welP) welP.textContent = t('welcome_desc');
-    const welCta = document.querySelector('.welcome-cta p');
-    if (welCta) welCta.innerHTML = t('welcome_cta');
-    const welFeatures = document.querySelectorAll('.welcome-feature p');
+    // ── Disease upload sidebar ───────────────────────────────────────────
+    const detectBtn = document.getElementById('detectBtn');
+    if (detectBtn) {
+        const span = detectBtn.querySelector('span:not(.material-symbols-outlined)');
+        if (!span) detectBtn.childNodes.forEach(n => { if (n.nodeType === 3 && n.textContent.trim()) n.textContent = ' ' + t('detect_disease'); });
+    }
+
+    // ── Welcome section ──────────────────────────────────────────────────
+    const welH1 = document.querySelector('#welcomeState h1');
+    if (welH1) welH1.textContent = t('welcome_title');
+    const welDesc = document.querySelector('#welcomeState > .flex + p, #welcomeState p.text-on-surface-variant');
+    if (welDesc) welDesc.textContent = t('welcome_desc');
+    // Feature card labels under welcome
+    const welFeatures = document.querySelectorAll('#welcomeState .glass-card p');
     const featureKeys = ['planet_satellite', 'live_weather', 'crop_ai', 'yield_price', 'disease_ai', 'gemini_advisory'];
     welFeatures.forEach((el, i) => { if (featureKeys[i]) el.textContent = t(featureKeys[i]); });
+    // CTA hint
+    const welCta = document.querySelector('#welcomeState .glass-card:last-of-type p');
+    if (welCta) welCta.innerHTML = t('welcome_cta');
 
-    // Result card headers
+    // ── Section headings ─────────────────────────────────────────────────
+    const sectionMap = [
+        ['#resultsState > section:nth-of-type(1) h2', isAs ? 'বিশ্লেষণ ফলাফল' : 'Analysis Results'],
+        ['#ndviTimelineSection h2', isAs ? t('ndvi_timeline') : '📈 NDVI Crop Health Timeline'],
+        ['#ndviSection h2', isAs ? t('ndvi_satellite') : '📡 NDVI Satellite Crop Health'],
+        ['#diseaseSection h2', isAs ? t('disease_detection') + ' ফলাফল' : '🌿 Plant Disease Detection Results'],
+        ['#chartsSection h2', isAs ? t('analytics') : '📊 Analytics & Visualizations'],
+        ['#advisorySection h2', isAs ? t('smart_advisory') : '🧠 Smart Advisory'],
+        ['#mandiSection h2', isAs ? t('mandi_prices') : '🏪 Live Mandi Prices'],
+        ['#disasterSection h2', isAs ? t('disaster_engine') : '🌊 Disaster Decision Engine'],
+        ['#chatSection h2', isAs ? t('ask_farming_ai') : '💬 Ask Farming AI'],
+        ['#newsSection h2', isAs ? t('farmer_news') : '📰 Smart Farming News'],
+        ['#reportSection h2', isAs ? t('complete_report') : '📄 Complete Report'],
+        ['#riskSection h2', isAs ? t('risk_analysis') : '⚡ Risk Analysis'],
+    ];
+    sectionMap.forEach(([sel, text]) => {
+        const el = document.querySelector(sel);
+        if (el) el.textContent = text;
+    });
+
+    // ── Result card headers ───────────────────────────────────────────────
     const cardHeaders = document.querySelectorAll('.result-card .card-header h3');
     const cardKeys = ['recommended_crop', 'yield_prediction', 'market_price', 'expected_profit', 'market_timing', 'risk_level'];
     cardHeaders.forEach((el, i) => { if (cardKeys[i]) el.textContent = t(cardKeys[i]); });
 
-    // Section headers
-    const sectionMap = {
-        'riskSection': 'risk_analysis', 'ndviTimelineSection': 'ndvi_timeline',
-        'ndviSection': 'ndvi_satellite', 'diseaseSection': 'disease_detection',
-        'chartsSection': 'analytics', 'advisorySection': 'smart_advisory',
-        'mandiSection': 'mandi_prices', 'disasterSection': 'disaster_engine',
-        'chatSection': 'ask_farming_ai', 'reportSection': 'complete_report'
-    };
-    Object.entries(sectionMap).forEach(([id, key]) => {
-        const sec = document.getElementById(id);
-        if (sec) {
-            const h2 = sec.querySelector('.section-header h2');
-            if (h2) h2.textContent = t(key);
-        }
-    });
-
-    // Timeline badge
-    const tlBadge = document.querySelector('.timeline-badge');
-    if (tlBadge) tlBadge.textContent = t('12_months');
-
-    // Live data badge
-    const liveBadge = document.querySelector('.banner-badge');
-    if (liveBadge) liveBadge.textContent = t('live_data');
-
-    // Disease
-    const uploadText = document.querySelector('.upload-text');
-    if (uploadText) uploadText.innerHTML = t('drop_leaf');
-    const detectBtn = document.getElementById('detectBtn');
-    if (detectBtn && !detectBtn.disabled) detectBtn.innerHTML = `<span>${t('detect_disease')}</span>`;
-    const treatH4 = document.querySelector('.disease-treatment h4');
-    if (treatH4) treatH4.textContent = t('treatment');
-
-    // Mandi
-    const mandiComm = document.getElementById('mandiCommodity');
-    if (mandiComm) mandiComm.placeholder = t('commodity_placeholder');
+    // ── Mandi placeholders ────────────────────────────────────────────────
+    const mandiCom = document.getElementById('mandiCommodity');
+    if (mandiCom) mandiCom.placeholder = t('commodity_placeholder');
     const mandiState = document.getElementById('mandiState');
     if (mandiState) mandiState.placeholder = t('state_placeholder');
-    const fetchBtn = document.getElementById('fetchMandiBtn');
-    if (fetchBtn && !fetchBtn.disabled) fetchBtn.textContent = t('fetch_prices');
-    const mandiHint = document.querySelector('.mandi-hint');
-    if (mandiHint) mandiHint.textContent = t('mandi_hint');
+    const mandiBtn = document.getElementById('fetchMandiBtn');
+    if (mandiBtn) mandiBtn.textContent = t('fetch_prices');
 
-    // Disaster
+    // ── Disaster button ───────────────────────────────────────────────────
     const disBtn = document.getElementById('runDisasterBtn');
-    if (disBtn && !disBtn.disabled) disBtn.textContent = t('generate_plan');
+    if (disBtn) disBtn.textContent = t('generate_plan');
 
-    // Chat input placeholder
-    const chatInput = document.getElementById('chatInput');
-    if (chatInput) chatInput.placeholder = t('chat_placeholder');
+    // ── Chat placeholder ──────────────────────────────────────────────────
+    const chatInp = document.getElementById('chatInput');
+    if (chatInp) chatInp.placeholder = t('chat_placeholder');
 
-    // Chat welcome
-    const chatWel = document.querySelector('[data-i18n="chat_welcome"]');
-    if (chatWel) chatWel.textContent = t('chat_welcome');
-    const chatEx1 = document.querySelector('[data-i18n="chat_ex1"]');
-    if (chatEx1) chatEx1.textContent = t('chat_ex1');
-    const chatEx2 = document.querySelector('[data-i18n="chat_ex2"]');
-    if (chatEx2) chatEx2.textContent = t('chat_ex2');
-    const chatEx3 = document.querySelector('[data-i18n="chat_ex3"]');
-    if (chatEx3) chatEx3.textContent = t('chat_ex3');
+    // ── News filter buttons ───────────────────────────────────────────────
+    const newsFilters = document.querySelectorAll('.news-filter-btn');
+    const newsFilterKeys = ['agriculture_filter', 'weather_filter', 'prices_filter', 'tech_filter', 'assam', 'all_filter'];
+    newsFilters.forEach((btn, i) => {
+        if (!newsFilterKeys[i]) return;
+        const icon = btn.querySelector('span');
+        const iconText = icon ? icon.outerHTML : '';
+        btn.innerHTML = iconText + ' ' + t(newsFilterKeys[i]);
+    });
 
-    // Report buttons
+    // ── Report buttons ────────────────────────────────────────────────────
     const dlBtn = document.getElementById('downloadReport');
     if (dlBtn) dlBtn.textContent = t('download');
     const prBtn = document.getElementById('printReport');
     if (prBtn) prBtn.textContent = t('print');
 
-    // Footer
-    const footer = document.querySelector('.app-footer p');
-    if (footer) footer.textContent = t('footer');
+    // ── Footer ────────────────────────────────────────────────────────────
+    const footer = document.querySelector('footer p.text-slate-500.text-xs');
+    if (footer) footer.textContent = isAs
+        ? '© ২০২৬ AgriPulse AI · স্মাৰ্ট কৃষি সিদ্ধান্ত ব্যৱস্থা · AI + উপগ্ৰহ + বতৰ + চেন্সৰ'
+        : '© 2026 AgriPulse AI · Smart Farming Decision System · AI + Satellite + Weather + Sensors';
+
+    // ── data-i18n elements (generic) ─────────────────────────────────────
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[key]) el.innerHTML = t(key);
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (i18n[key]) el.placeholder = t(key);
+    });
 }
+
 
 // ━━━ VOICE INPUT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function setupVoiceInput() {

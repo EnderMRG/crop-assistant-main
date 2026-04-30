@@ -1355,9 +1355,10 @@ def analyze_crop(crop_id):
 
 @app.route("/")
 def home():
-    """Comprehensive Smart Farming Decision System for authenticated users"""
-    print(f"🏠 HOME route hit - session has user_email: {'user_email' in session}")
-    print(f"   -> Returning login.html")
+    """Home — redirect to dashboard if logged in, otherwise show login."""
+    from flask import redirect, url_for
+    if "user_email" in session:
+        return redirect(url_for("dashboard"))
     return send_from_directory(app.template_folder, "login.html")
 
 

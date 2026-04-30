@@ -1,506 +1,333 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html class="dark" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Comprehensive Crop Analysis - Satellite, Weather, AI Advisory">
-    <title>🌾 Smart Farming - Crop Analysis</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <style>
-        .app-layout { display: grid; grid-template-columns: 350px 1fr; gap: 0; min-height: calc(100vh - 80px); }
-        .input-panel { background: var(--bg-card); border-right: 1px solid var(--border-color); overflow-y: auto; padding: 24px; }
-        .output-panel { background: var(--bg-primary); overflow-y: auto; padding: 32px; }
-        
-        .mode-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
-        .mode-tab { flex: 1; padding: 12px 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.3s; text-align: center; }
-        .mode-tab.active { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff; border-color: #1d4ed8; }
-        .mode-tab small { display: block; font-size: 0.7rem; opacity: 0.8; margin-top: 2px; }
-        
-        .sensor-form { display: flex; flex-direction: column; gap: 24px; }
-        .input-group { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; }
-        .group-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 8px; color: var(--text-primary); }
-        .group-hint { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; }
-        
-        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .input-field { display: flex; flex-direction: column; gap: 4px; }
-        .input-field label { font-size: 0.8rem; color: var(--text-secondary); font-weight: 500; }
-        .input-wrapper { position: relative; }
-        .form-input { width: 100%; padding: 8px 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-size: 0.85rem; }
-        .form-input:focus { outline: none; border-color: var(--text-accent); }
-        .input-unit { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 0.7rem; color: var(--text-muted); }
-        
-        .btn-submit { width: 100%; padding: 12px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
-        .btn-submit:hover { transform: translateY(-2px); }
-        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-        
-        .output-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .output-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; }
-        .card-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
-        .card-value { font-size: 1.8rem; font-weight: 800; color: var(--text-accent); }
-        .card-unit { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
-        
-        .section { margin-bottom: 32px; }
-        .section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--border-color); }
-        
-        .weather-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
-        .weather-item { background: var(--bg-secondary); padding: 12px; border-radius: 6px; text-align: center; }
-        .weather-icon { font-size: 2rem; margin-bottom: 4px; }
-        .weather-value { font-size: 1.4rem; font-weight: 700; }
-        .weather-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
-        
-        .alert-item { background: var(--bg-secondary); border-left: 3px solid #f59e0b; padding: 12px; border-radius: 4px; margin-bottom: 8px; }
-        .alert-item.critical { border-left-color: #ef4444; }
-        .alert-item.success { border-left-color: #22c55e; }
-        .alert-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; }
-        .alert-message { font-size: 0.85rem; color: var(--text-secondary); }
-        
-        .chart-container { position: relative; height: 300px; margin-bottom: 16px; background: var(--bg-secondary); padding: 16px; border-radius: 8px; }
-        
-        .advice-box { background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%); border-left: 3px solid #3b82f6; padding: 16px; border-radius: 6px; margin-bottom: 16px; }
-        .advice-title { font-weight: 700; color: #3b82f6; margin-bottom: 8px; }
-        .advice-text { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
-        
-        .tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); }
-        .tab { padding: 8px 16px; background: none; border: none; cursor: pointer; font-size: 0.9rem; color: var(--text-muted); border-bottom: 2px solid transparent; transition: all 0.3s; }
-        .tab.active { color: var(--text-accent); border-bottom-color: var(--text-accent); }
-        
-        .back-btn { margin-bottom: 16px; padding: 10px 16px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; color: var(--text-primary); transition: all 0.3s; }
-        .back-btn:hover { background: var(--bg-input); }
-    </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta name="description" content="Comprehensive Crop Analysis - Satellite, Weather, AI Advisory"/>
+<title>AgriPulse AI — Crop Analysis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-surface":"#dde4dd","primary-container":"#10b981","on-surface-variant":"#bbcabf","surface-container-high":"#242c27","secondary-container":"#0566d9","primary":"#4edea3","surface-container-highest":"#2f3632","error-container":"#93000a","on-primary-container":"#00422b","error":"#ffb4ab","surface-container":"#1a211d","background":"#0e1511","secondary":"#adc6ff","surface":"#0e1511","outline-variant":"#3c4a42","primary-fixed":"#6ffbbe","on-primary":"#003824","surface-container-low":"#161d19","outline":"#86948a","on-secondary-container":"#e6ecff"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{md:"16px",lg:"24px",sm:"8px",gutter:"20px",xs:"4px",unit:"4px","container-max":"1280px",xl:"40px"},fontFamily:{"data-mono":["JetBrains Mono"],"coordinate-xs":["JetBrains Mono"],"body-base":["Inter"],h2:["Inter"],h1:["Inter"],"body-sm":["Inter"]},fontSize:{"coordinate-xs":["11px",{lineHeight:"1.2",fontWeight:"600"}],"data-mono":["14px",{lineHeight:"1.4",letterSpacing:"0.02em",fontWeight:"500"}],"body-base":["16px",{lineHeight:"1.6",fontWeight:"400"}],h2:["24px",{lineHeight:"1.3",fontWeight:"600"}],h1:["32px",{lineHeight:"1.2",fontWeight:"600"}],"body-sm":["14px",{lineHeight:"1.5",fontWeight:"400"}]}}}}
+</script>
+<style>
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+.glass-card{background:rgba(255,255,255,.03);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1)}
+input[type=number]{background:#1a211d;border:1px solid #3c4a42;color:#dde4dd;border-radius:6px;padding:8px 10px;width:100%;font-family:'JetBrains Mono',monospace;font-size:.85rem;outline:none;transition:border-color .2s}
+input:focus{border-color:#adc6ff}
+.mode-tab{flex:1;padding:10px 8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .3s;text-align:center;color:#bbcabf;font-size:.85rem}
+.mode-tab.active{background:linear-gradient(135deg,#0566d9,#003b9a);border-color:#0566d9;color:#fff}
+.tab-btn{padding:8px 16px;background:none;border:none;cursor:pointer;font-size:.9rem;color:#bbcabf;border-bottom:2px solid transparent;transition:all .3s;font-family:'Inter',sans-serif}
+.tab-btn.active{color:#4edea3;border-bottom-color:#4edea3}
+.advice-box{background:rgba(5,102,217,.1);border-left:3px solid #adc6ff;padding:14px;border-radius:6px;margin-bottom:12px}
+.advice-title{font-weight:700;color:#adc6ff;margin-bottom:6px;font-size:.9rem}
+.advice-text{font-size:.875rem;color:#bbcabf;line-height:1.6}
+.out-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px}
+.out-label{font-size:.75rem;color:#bbcabf;margin-bottom:4px;font-family:'JetBrains Mono',monospace}
+.out-value{font-size:1.7rem;font-weight:800;color:#4edea3}
+.out-unit{font-size:.72rem;color:#bbcabf;margin-top:2px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .4s ease}
+</style>
 </head>
-<body>
-    <!-- HEADER -->
-    <header class="app-header">
-        <div class="header-left">
-            <div class="logo">
-                <span class="logo-icon">🌾</span>
-                <div class="logo-text">
-                    <h1>Smart Farming</h1>
-                    <span class="logo-subtitle">Comprehensive Crop Analysis</span>
-                </div>
-            </div>
-        </div>
-        <div class="header-right">
-            <button class="theme-toggle" id="themeToggle">🌙</button>
-            <button class="btn-logout" id="logoutBtn" style="padding: 10px 20px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #fff; border: none; border-radius: 8px; cursor: pointer;">🚪 Logout</button>
-        </div>
-    </header>
+<body class="bg-background text-on-surface font-body-base min-h-screen" style="background:radial-gradient(circle at top right,rgba(16,185,129,.06),transparent),#0e1511">
 
-    <!-- MAIN LAYOUT -->
-    <div class="app-layout">
-        <!-- INPUT PANEL -->
-        <aside class="input-panel">
-            <button class="back-btn" onclick="window.location.href='/dashboard'">← Back to Dashboard</button>
-            
-            <div class="mode-tabs">
-                <button class="mode-tab active" id="tabAuto" data-mode="auto">
-                    <span>🛰️</span> Smart Mode
-                </button>
-                <button class="mode-tab" id="tabManual" data-mode="manual">
-                    <span>🌡️</span> Manual Mode
-                </button>
-            </div>
+<!-- TOP NAV -->
+<header class="fixed top-0 w-full border-b bg-slate-950/60 backdrop-blur-xl border-white/10 flex justify-between items-center px-6 h-16 z-50">
+  <div class="flex items-center gap-6">
+    <span class="text-xl font-black tracking-tighter text-emerald-400">AgriPulse AI</span>
+    <nav class="hidden md:flex items-center gap-4">
+      <a href="/" class="text-emerald-400 font-bold border-b-2 border-emerald-500 pb-0.5 text-sm">AI Analysis</a>
+      <a href="/dashboard" class="text-slate-400 hover:text-emerald-300 transition-colors text-sm font-medium">Dashboard</a>
+    </nav>
+  </div>
+  <div class="flex items-center gap-3">
+    <button id="logoutBtn" class="flex items-center gap-2 px-3 py-1.5 bg-red-900/30 border border-red-500/30 text-red-400 hover:bg-red-900/50 rounded-lg text-sm font-medium transition-all">
+      <span class="material-symbols-outlined text-[18px]">logout</span> Logout
+    </button>
+  </div>
+</header>
 
-            <form id="sensorForm" class="sensor-form">
-                <!-- AUTO MODE -->
-                <div class="mode-section auto-section" id="autoSection">
-                    <div class="input-group">
-                        <h3 class="group-title">📍 Your Location</h3>
-                        <button type="button" class="btn-location" id="getLocationBtn" style="width: 100%; padding: 10px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                            📍 Detect My Location
-                        </button>
-                        <div id="locationInfo" style="margin-top: 12px; padding: 8px; background: var(--bg-input); border-radius: 4px; text-align: center; font-size: 0.85rem; color: var(--text-secondary); display: none;">
-                            <div id="locBadge">📍 Location detected</div>
-                            <div id="locCoords" style="font-size: 0.75rem; margin-top: 4px;"></div>
-                        </div>
-                    </div>
+<!-- LAYOUT: sidebar + main -->
+<div class="flex min-h-screen pt-16">
 
-                    <div class="input-group">
-                        <h3 class="group-title">🧪 Soil Data</h3>
-                        <div class="input-row">
-                            <div class="input-field">
-                                <label>Nitrogen (N)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" class="form-input" id="autoN" value="60" min="0" max="200">
-                                    <span class="input-unit">kg/ha</span>
-                                </div>
-                            </div>
-                            <div class="input-field">
-                                <label>Phosphorus (P)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" class="form-input" id="autoP" value="40" min="0" max="150">
-                                    <span class="input-unit">kg/ha</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="input-row">
-                            <div class="input-field">
-                                <label>Potassium (K)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" class="form-input" id="autoK" value="40" min="0" max="200">
-                                    <span class="input-unit">kg/ha</span>
-                                </div>
-                            </div>
-                            <div class="input-field">
-                                <label>Soil pH</label>
-                                <div class="input-wrapper">
-                                    <input type="number" class="form-input" id="autoPH" value="6.5" min="0" max="14" step="0.1">
-                                    <span class="input-unit">pH</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  <!-- SIDEBAR INPUT PANEL -->
+  <aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-[320px] border-r bg-slate-950/80 backdrop-blur-2xl border-white/10 overflow-y-auto z-40 p-5 space-y-4">
 
-                <!-- MANUAL MODE -->
-                <div class="mode-section manual-section" id="manualSection" style="display: none;">
-                    <div class="input-group">
-                        <h3 class="group-title">🌡️ Weather Data</h3>
-                        <div class="input-row">
-                            <div class="input-field">
-                                <label>Temperature</label>
-                                <div class="input-wrapper">
-                                    <input type="number" class="form-input" id="manualTemp" value="25" min="-20" max="50">
-                                    <span class="input-unit">°C</span>
-                                </div>
-                            </div>
-                            <div class="input-field">
-                                <label>Humidity</label>
-                                <div class="input-wrapper">
-                                    <input type="number" class="form-input" id="manualHumidity" value="60" min="0" max="100">
-                                    <span class="input-unit">%</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="input-field">
-                            <label>Rainfall</label>
-                            <div class="input-wrapper">
-                                <input type="number" class="form-input" id="manualRainfall" value="100" min="0" max="500">
-                                <span class="input-unit">mm</span>
-                            </div>
-                        </div>
-                    </div>
+    <button class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary transition-colors mb-2" onclick="window.location.href='/dashboard'">
+      <span class="material-symbols-outlined text-[18px]">arrow_back</span> Back to Dashboard
+    </button>
 
-                    <div class="input-group">
-                        <h3 class="group-title">🧪 Soil Data</h3>
-                        <div class="input-row">
-                            <div class="input-field">
-                                <label>Nitrogen (N)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" class="form-input" id="manualN" value="60" min="0" max="200">
-                                    <span class="input-unit">kg/ha</span>
-                                </div>
-                            </div>
-                            <div class="input-field">
-                                <label>Phosphorus (P)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" class="form-input" id="manualP" value="40" min="0" max="150">
-                                    <span class="input-unit">kg/ha</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="input-row">
-                            <div class="input-field">
-                                <label>Potassium (K)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" class="form-input" id="manualK" value="40" min="0" max="200">
-                                    <span class="input-unit">kg/ha</span>
-                                </div>
-                            </div>
-                            <div class="input-field">
-                                <label>Soil pH</label>
-                                <div class="input-wrapper">
-                                    <input type="number" class="form-input" id="manualPH" value="6.5" min="0" max="14" step="0.1">
-                                    <span class="input-unit">pH</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-submit">🚀 Analyze & Get Advisory</button>
-            </form>
-        </aside>
-
-        <!-- OUTPUT PANEL -->
-        <div class="output-panel">
-            <!-- TABS -->
-            <div class="tabs" id="resultTabs" style="display: none; flex-wrap: wrap;">
-                <button class="tab active" data-tab="analysis">📊 Analysis</button>
-                <button class="tab" data-tab="disease">🦠 Disease</button>
-                <button class="tab" data-tab="mandi">🏪 Mandi Prices</button>
-                <button class="tab" data-tab="news">📰 News</button>
-                <button class="tab" data-tab="chatbot">💬 AI Chatbot</button>
-                <button class="tab" data-tab="alerts">🚨 SMS Alerts</button>
-            </div>
-
-            <!-- CONTENT -->
-            <div id="outputContent">
-                <p style="text-align: center; color: var(--text-muted); padding: 40px;">
-                    👈 Enter your data and click "Analyze & Get Advisory" to see comprehensive analysis
-                </p>
-            </div>
-        </div>
+    <!-- Mode Tabs -->
+    <div class="flex gap-2" id="modeTabs">
+      <button class="mode-tab active" id="tabAuto" data-mode="auto">
+        <span class="material-symbols-outlined block mx-auto mb-1 text-[20px]">satellite_alt</span>
+        Smart Mode
+      </button>
+      <button class="mode-tab" id="tabManual" data-mode="manual">
+        <span class="material-symbols-outlined block mx-auto mb-1 text-[20px]">sensors</span>
+        Sensor Mode
+      </button>
     </div>
 
-    <script>
-        const html = document.documentElement;
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        html.setAttribute('data-theme', savedTheme);
-        
-        document.getElementById('themeToggle').addEventListener('click', () => {
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
+    <form id="sensorForm" class="space-y-4">
+      <!-- AUTO SECTION -->
+      <div id="autoSection" class="space-y-4">
+        <div class="glass-card rounded-xl p-4">
+          <h3 class="text-sm font-bold text-on-surface mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-[18px]">location_on</span> Your Location
+          </h3>
+          <button type="button" id="getLocationBtn"
+            class="w-full py-2.5 bg-secondary-container text-white rounded-lg font-bold text-sm hover:brightness-110 transition-all active:scale-95 flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">my_location</span> Detect My Location
+          </button>
+          <div id="locationInfo" style="display:none" class="mt-3 glass-card rounded-lg p-3 text-center">
+            <div id="locBadge" class="text-primary text-sm font-bold">Location detected</div>
+            <div id="locCoords" class="text-coordinate-xs text-on-surface-variant font-data-mono mt-1"></div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-xl p-4">
+          <h3 class="text-sm font-bold text-on-surface mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-[18px]">science</span> Soil Data
+          </h3>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1">Nitrogen (N) kg/ha</label><input type="number" id="autoN" value="60" min="0" max="200"/></div>
+            <div><label class="text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1">Phosphorus (P) kg/ha</label><input type="number" id="autoP" value="40" min="0" max="150"/></div>
+            <div><label class="text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1">Potassium (K) kg/ha</label><input type="number" id="autoK" value="40" min="0" max="200"/></div>
+            <div><label class="text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1">Soil pH</label><input type="number" id="autoPH" value="6.5" min="0" max="14" step="0.1"/></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MANUAL SECTION -->
+      <div id="manualSection" style="display:none" class="space-y-4">
+        <div class="glass-card rounded-xl p-4">
+          <h3 class="text-sm font-bold text-on-surface mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary text-[18px]">thermostat</span> Weather Data
+          </h3>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1">Temperature °C</label><input type="number" id="manualTemp" value="25" min="-20" max="50"/></div>
+            <div><label class="text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1">Humidity %</label><input type="number" id="manualHumidity" value="60" min="0" max="100"/></div>
+          </div>
+          <div class="mt-3"><label class="text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1">Rainfall mm</label><input type="number" id="manualRainfall" value="100" min="0" max="500"/></div>
+        </div>
+        <div class="glass-card rounded-xl p-4">
+          <h3 class="text-sm font-bold text-on-surface mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-[18px]">science</span> Soil Data
+          </h3>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1">Nitrogen (N) kg/ha</label><input type="number" id="manualN" value="60" min="0" max="200"/></div>
+            <div><label class="text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1">Phosphorus (P) kg/ha</label><input type="number" id="manualP" value="40" min="0" max="150"/></div>
+            <div><label class="text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1">Potassium (K) kg/ha</label><input type="number" id="manualK" value="40" min="0" max="200"/></div>
+            <div><label class="text-[10px] text-on-surface-variant uppercase tracking-wider block mb-1">Soil pH</label><input type="number" id="manualPH" value="6.5" min="0" max="14" step="0.1"/></div>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="w-full py-3 bg-primary text-on-primary-container font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2" style="box-shadow:0 0 20px rgba(16,185,129,.2)">
+        <span class="material-symbols-outlined text-[20px]">rocket_launch</span>
+        Analyze &amp; Get Advisory
+      </button>
+    </form>
+  </aside>
+
+  <!-- OUTPUT PANEL -->
+  <main class="ml-[320px] flex-1 p-8 overflow-y-auto">
+    <!-- Output Tabs -->
+    <div id="resultTabs" style="display:none" class="flex flex-wrap gap-1 border-b border-outline-variant mb-6">
+      <button class="tab-btn active" data-tab="analysis">Analysis</button>
+      <button class="tab-btn" data-tab="disease">Disease</button>
+      <button class="tab-btn" data-tab="mandi">Mandi Prices</button>
+      <button class="tab-btn" data-tab="news">News</button>
+      <button class="tab-btn" data-tab="chatbot">AI Chatbot</button>
+      <button class="tab-btn" data-tab="alerts">SMS Alerts</button>
+    </div>
+
+    <div id="outputContent" class="min-h-[60vh] flex items-center justify-center">
+      <div class="text-center text-on-surface-variant space-y-3">
+        <span class="material-symbols-outlined text-6xl block opacity-30">agriculture</span>
+        <p class="text-lg">Enter your soil data and click<br/><strong class="text-primary">Analyze &amp; Get Advisory</strong></p>
+        <p class="text-sm opacity-60">Smart Mode auto-fetches weather &amp; satellite data via GPS</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const html = document.documentElement;
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await fetch('/api/logout', { method: 'POST' });
+  window.location.href = '/login';
+});
+
+// Mode switching
+document.getElementById('tabAuto').addEventListener('click', () => {
+  document.getElementById('autoSection').style.display = 'block';
+  document.getElementById('manualSection').style.display = 'none';
+  document.getElementById('tabAuto').classList.add('active');
+  document.getElementById('tabManual').classList.remove('active');
+});
+document.getElementById('tabManual').addEventListener('click', () => {
+  document.getElementById('autoSection').style.display = 'none';
+  document.getElementById('manualSection').style.display = 'block';
+  document.getElementById('tabAuto').classList.remove('active');
+  document.getElementById('tabManual').classList.add('active');
+});
+
+// Get location
+document.getElementById('getLocationBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        document.getElementById('locationInfo').style.display = 'block';
+        document.getElementById('locCoords').textContent = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+        document.getElementById('getLocationBtn').innerHTML = '<span class="material-symbols-outlined text-[18px]">check_circle</span> Location Detected';
+        document.getElementById('getLocationBtn').style.opacity = '0.7';
+        fetch('/api/weather', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ latitude, longitude })
+        }).then(r => r.json()).then(data => {
+          document.getElementById('autoN').value = data.N || 60;
+          document.getElementById('autoP').value = data.P || 40;
+          document.getElementById('autoK').value = data.K || 40;
+          document.getElementById('autoPH').value = data.pH || 6.5;
         });
+      },
+      () => alert('Unable to get location. Please use Sensor Mode.')
+    );
+  }
+});
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await fetch('/api/logout', { method: 'POST' });
-            window.location.href = '/login';
-        });
+// Form submission
+document.getElementById('sensorForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const mode = document.getElementById('tabAuto').classList.contains('active') ? 'auto' : 'manual';
+  const data = {
+    mode,
+    N: parseFloat(document.getElementById(mode === 'auto' ? 'autoN' : 'manualN').value),
+    P: parseFloat(document.getElementById(mode === 'auto' ? 'autoP' : 'manualP').value),
+    K: parseFloat(document.getElementById(mode === 'auto' ? 'autoK' : 'manualK').value),
+    pH: parseFloat(document.getElementById(mode === 'auto' ? 'autoPH' : 'manualPH').value)
+  };
+  if (mode === 'manual') {
+    data.temperature = parseFloat(document.getElementById('manualTemp').value);
+    data.humidity = parseFloat(document.getElementById('manualHumidity').value);
+    data.rainfall = parseFloat(document.getElementById('manualRainfall').value);
+  }
 
-        // Mode switching
-        document.getElementById('tabAuto').addEventListener('click', () => {
-            document.getElementById('autoSection').style.display = 'block';
-            document.getElementById('manualSection').style.display = 'none';
-            document.getElementById('tabAuto').classList.add('active');
-            document.getElementById('tabManual').classList.remove('active');
-        });
+  const btn = document.querySelector('#sensorForm button[type=submit]');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="material-symbols-outlined text-[20px]">autorenew</span> Analyzing...';
+  document.getElementById('outputContent').innerHTML = `<div class="text-center text-on-surface-variant space-y-3 py-20">
+    <span class="material-symbols-outlined text-5xl block text-primary animate-spin">autorenew</span>
+    <p class="text-lg">Running AI Analysis...</p>
+  </div>`;
 
-        document.getElementById('tabManual').addEventListener('click', () => {
-            document.getElementById('autoSection').style.display = 'none';
-            document.getElementById('manualSection').style.display = 'block';
-            document.getElementById('tabAuto').classList.remove('active');
-            document.getElementById('tabManual').classList.add('active');
-        });
+  try {
+    const response = await fetch('/api/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await response.json();
+    if (result.success) {
+      document.getElementById('resultTabs').style.display = 'flex';
+      displayResults(result);
+    } else {
+      alert('Error: ' + result.error);
+      document.getElementById('outputContent').innerHTML = '<p class="text-error text-center py-20">Analysis failed. Please try again.</p>';
+    }
+  } catch (error) {
+    alert('Error: ' + error.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined text-[20px]">rocket_launch</span> Analyze &amp; Get Advisory';
+  }
+});
 
-        // Get location
-        document.getElementById('getLocationBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords;
-                        document.getElementById('locationInfo').style.display = 'block';
-                        document.getElementById('locCoords').textContent = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
-                        document.getElementById('getLocationBtn').textContent = '✅ Location Detected';
-                        document.getElementById('getLocationBtn').style.opacity = '0.7';
-                        
-                        // Fetch weather for this location
-                        fetch('/api/weather', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ latitude, longitude })
-                        })
-                        .then(r => r.json())
-                        .then(data => {
-                            document.getElementById('autoN').value = data.N || 60;
-                            document.getElementById('autoP').value = data.P || 40;
-                            document.getElementById('autoK').value = data.K || 40;
-                            document.getElementById('autoPH').value = data.pH || 6.5;
-                        });
-                    },
-                    () => alert('❌ Unable to get location. Please use Manual Mode.')
-                );
-            }
-        });
+function displayResults(data) {
+  const cropName = data.crop?.name || data.summary?.crop || 'Unknown';
+  const yieldValue = data.yield?.value || 0;
+  const priceValue = data.price?.value || 0;
+  const mspValue = data.price?.msp || 0;
+  const profitValue = data.profit?.value || 0;
+  const ndviValue = data.ndvi?.ndvi || 0;
+  const ndviHealth = data.ndvi?.health || 'Unknown';
 
-        // Form submission
-        document.getElementById('sensorForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const mode = document.getElementById('tabAuto').classList.contains('active') ? 'auto' : 'manual';
-            const data = {
-                mode: mode,
-                N: parseFloat(document.getElementById(mode === 'auto' ? 'autoN' : 'manualN').value),
-                P: parseFloat(document.getElementById(mode === 'auto' ? 'autoP' : 'manualP').value),
-                K: parseFloat(document.getElementById(mode === 'auto' ? 'autoK' : 'manualK').value),
-                pH: parseFloat(document.getElementById(mode === 'auto' ? 'autoPH' : 'manualPH').value)
-            };
+  const advisory = data.advisory || {};
+  const advisories = advisory.advisories || [];
 
-            if (mode === 'manual') {
-                data.temperature = parseFloat(document.getElementById('manualTemp').value);
-                data.humidity = parseFloat(document.getElementById('manualHumidity').value);
-                data.rainfall = parseFloat(document.getElementById('manualRainfall').value);
-            }
+  let html = `<div class="space-y-6 fade-in">
+    <div class="glass-card rounded-xl p-6 flex items-center gap-4">
+      <span class="material-symbols-outlined text-5xl text-primary" style="font-variation-settings:'FILL' 1">grass</span>
+      <div>
+        <p class="text-coordinate-xs text-on-surface-variant uppercase tracking-widest">Best Crop Recommendation</p>
+        <h2 class="text-4xl font-black text-primary">${cropName}</h2>
+      </div>
+    </div>
 
-            try {
-                document.querySelector('.btn-submit').disabled = true;
-                document.querySelector('.btn-submit').textContent = '🔄 Analyzing...';
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="glass-card rounded-xl p-4">
+        <div class="out-label">Expected Yield</div>
+        <div class="out-value">${(yieldValue||0).toFixed(2)}</div>
+        <div class="out-unit">tons/hectare</div>
+      </div>
+      <div class="glass-card rounded-xl p-4">
+        <div class="out-label">Market Price</div>
+        <div class="out-value text-secondary">₹${Math.round(priceValue||0)}</div>
+        <div class="out-unit">per quintal</div>
+      </div>
+      <div class="glass-card rounded-xl p-4">
+        <div class="out-label">Profit Potential</div>
+        <div class="out-value">₹${((profitValue||0)/1000).toFixed(1)}K</div>
+        <div class="out-unit">per hectare</div>
+      </div>
+      <div class="glass-card rounded-xl p-4">
+        <div class="out-label">NDVI Health</div>
+        <div class="out-value text-secondary">${(ndviValue||0).toFixed(2)}</div>
+        <div class="out-unit">${ndviHealth}</div>
+      </div>
+    </div>`;
 
-                console.log('[FETCH] Sending data:', data);
-                const response = await fetch('/api/predict', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
+  const alerts = data.alerts;
+  if (alerts && (alerts.critical || alerts.warning)) {
+    const alertData = alerts.critical || alerts.warning || {};
+    html += `<div class="glass-card rounded-xl p-4 border-l-4 border-error">
+      <div class="font-bold text-error mb-1">${alertData.title || 'Alert'}</div>
+      <p class="text-body-sm text-on-surface-variant">${alertData.message || ''}</p>
+    </div>`;
+  }
 
-                console.log('[FETCH] Response status:', response.status);
-                const result = await response.json();
-                console.log('[FETCH] Response data:', result);
+  html += `<div class="glass-card rounded-xl p-6 space-y-3">
+    <h3 class="font-bold text-on-surface flex items-center gap-2">
+      <span class="material-symbols-outlined text-primary text-[20px]">psychology</span> AI-Powered Advisory
+    </h3>
+    <div class="advice-box">
+      <div class="advice-title">Crop Selection Recommendation</div>
+      <div class="advice-text">Based on your soil nutrients, weather conditions, and market analysis, <strong>${cropName}</strong> is the optimal crop choice for maximum yield and profitability.</div>
+    </div>`;
 
-                if (result.success) {
-                    console.log('[SUCCESS] Calling displayResults...');
-                    displayResults(result);
-                    console.log('[SUCCESS] displayResults completed');
-                } else {
-                    console.log('[ERROR] API returned error:', result.error);
-                    alert('❌ ' + result.error);
-                }
-            } catch (error) {
-                console.log('[CATCH] Error:', error);
-                alert('❌ Error: ' + error.message);
-            } finally {
-                document.querySelector('.btn-submit').disabled = false;
-                document.querySelector('.btn-submit').textContent = '🚀 Analyze & Get Advisory';
-            }
-        });
+  if (advisory.seasonal_tip) html += `<div class="advice-box"><div class="advice-title">Seasonal Insight</div><div class="advice-text">${advisory.seasonal_tip}</div></div>`;
+  if (advisory.market_insight) html += `<div class="advice-box"><div class="advice-title">Market Insight</div><div class="advice-text">${advisory.market_insight}</div></div>`;
 
-        function displayResults(data) {
-            console.log('[DISPLAY] Received data:', data);
-            
-            // Extract crop name from the response structure (API returns crop as object with .name property)
-            const cropName = data.crop?.name || data.summary?.crop || 'Unknown';
-            const yieldValue = data.yield?.value || 0;
-            const priceValue = data.price?.value || 0;
-            const mspValue = data.price?.msp || 0;
-            const profitValue = data.profit?.value || 0;
-            const ndviValue = data.ndvi?.ndvi || 0;
-            const ndviHealth = data.ndvi?.health || 'Unknown';
-            
-            // Build HTML with the response data
-            let html = `
-                <div style="animation: fadeIn 0.5s;">
-                    <!-- CROP RECOMMENDATION -->
-                    <div class="section">
-                        <div class="section-title">🌾 Recommended Crop</div>
-                        <div class="output-grid">
-                            <div class="output-card">
-                                <div class="card-label">Best Crop</div>
-                                <div class="card-value">${cropName}</div>
-                            </div>
-                        </div>
-                    </div>
+  if (advisories.length > 0) {
+    html += `<div class="advice-box"><div class="advice-title">Additional Recommendations</div><ul class="space-y-1 mt-2">`;
+    advisories.slice(0,5).forEach(adv => {
+      const t = typeof adv === 'string' ? adv : (adv.text || adv.title || adv.message || '');
+      if (t) html += `<li class="text-body-sm text-on-surface-variant flex items-start gap-2"><span class="material-symbols-outlined text-primary text-[14px] mt-0.5">check_circle</span>${t}</li>`;
+    });
+    html += `</ul></div>`;
+  }
 
-                    <!-- KEY METRICS -->
-                    <div class="section">
-                        <div class="section-title">📊 Performance Metrics</div>
-                        <div class="output-grid">
-                            <div class="output-card">
-                                <div class="card-label">Expected Yield</div>
-                                <div class="card-value">${(yieldValue || 0).toFixed(2)}</div>
-                                <div class="card-unit">tons/hectare</div>
-                            </div>
-                            <div class="output-card">
-                                <div class="card-label">Market Price</div>
-                                <div class="card-value">₹${Math.round(priceValue || 0)}</div>
-                                <div class="card-unit">per quintal</div>
-                            </div>
-                            <div class="output-card">
-                                <div class="card-label">Profit Potential</div>
-                                <div class="card-value">₹${((profitValue || 0) / 1000).toFixed(1)}K</div>
-                                <div class="card-unit">per hectare</div>
-                            </div>
-                            <div class="output-card">
-                                <div class="card-label">MSP (Min Support)</div>
-                                <div class="card-value">₹${Math.round(mspValue || 0)}</div>
-                                <div class="card-unit">per quintal</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SATELLITE DATA -->
-                    <div class="section">
-                        <div class="section-title">🛰️ Satellite & Crop Health</div>
-                        <div class="output-grid">
-                            <div class="output-card">
-                                <div class="card-label">NDVI (Crop Health)</div>
-                                <div class="card-value">${(ndviValue || 0).toFixed(2)}</div>
-                                <div class="card-unit">Health: ${ndviHealth}</div>
-                            </div>
-                        </div>
-                    </div>
-            `;
-            
-            // Add alerts if present
-            const alerts = data.alerts;
-            if (alerts && (alerts.critical || alerts.warning)) {
-                const alertData = alerts.critical || alerts.warning || {};
-                html += `
-                    <div class="section">
-                        <div class="section-title">🚨 Alerts</div>
-                        <div class="alert-item critical">
-                            <div class="alert-title">${alertData.title || 'Alert'}</div>
-                            <div class="alert-message">${alertData.message || 'Unknown alert'}</div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // AI Advisory
-            const advisoryData = data.advisory || {};
-            const advisories = advisoryData.advisories || [];
-            const seasonalTip = advisoryData.seasonal_tip || '';
-            const marketInsight = advisoryData.market_insight || '';
-            
-            html += `
-                    <!-- AI ADVISORY -->
-                    <div class="section">
-                        <div class="section-title">🧠 AI-Powered Advisory</div>
-                        <div class="advice-box">
-                            <div class="advice-title">Crop Selection Recommendation</div>
-                            <div class="advice-text">
-                                Based on your soil nutrients, weather conditions, and market analysis, <strong>${cropName}</strong> is the optimal crop choice for maximum yield and profitability.
-                            </div>
-                        </div>
-            `;
-            
-            if (seasonalTip) {
-                html += `
-                        <div class="advice-box" style="margin-top: 12px;">
-                            <div class="advice-title">🌱 Seasonal Insight</div>
-                            <div class="advice-text">${seasonalTip}</div>
-                        </div>
-                `;
-            }
-            
-            if (marketInsight) {
-                html += `
-                        <div class="advice-box" style="margin-top: 12px;">
-                            <div class="advice-title">💰 Market Insight</div>
-                            <div class="advice-text">${marketInsight}</div>
-                        </div>
-                `;
-            }
-            
-            if (advisories && advisories.length > 0) {
-                html += `<div class="advice-box" style="margin-top: 12px;">
-                            <div class="advice-title">📋 Additional Recommendations</div>
-                            <ul style="margin: 8px 0; padding-left: 20px;">`;
-                advisories.slice(0, 5).forEach(adv => {
-                    // Handle both string and object recommendations
-                    const advText = typeof adv === 'string' ? adv : (adv.text || adv.title || adv.message || '');
-                    if (advText) {
-                        html += `<li style="margin: 4px 0; color: var(--text-secondary);">${advText}</li>`;
-                    }
-                });
-                html += `</ul></div>`;
-            }
-            
-            html += `
-                    </div>
-                </div>
-            `;
-
-            console.log('[DISPLAY] Setting HTML');
-            document.getElementById('outputContent').innerHTML = html;
-            console.log('[DISPLAY] HTML set complete');
-        }
-    </script>
+  html += `</div></div>`;
+  document.getElementById('outputContent').innerHTML = html;
+}
+</script>
 </body>
 </html>

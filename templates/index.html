@@ -1,77 +1,269 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html class="dark" lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AI-Based Crop Recommendation & Advisory System for Marginal Farmers — Satellite imagery, soil sensor integration, and weather-responsive advisory.">
-    <title>🌾 Smart Farming Decision System</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Assamese:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="description" content="AI-Based Crop Recommendation &amp; Advisory System for Marginal Farmers — Satellite imagery, soil sensor integration, and weather-responsive advisory.">
+    <title>AgriPulse AI — Smart Farming Analysis</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@500;600&family=Noto+Sans+Assamese:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+    tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-surface":"#dde4dd","primary-container":"#10b981","on-surface-variant":"#bbcabf","surface-container-high":"#242c27","secondary-container":"#0566d9","primary":"#4edea3","on-error":"#690005","surface-container-highest":"#2f3632","error-container":"#93000a","on-primary-container":"#00422b","error":"#ffb4ab","surface-container":"#1a211d","background":"#0e1511","secondary":"#adc6ff","surface":"#0e1511","on-error-container":"#ffdad6","outline-variant":"#3c4a42","primary-fixed":"#6ffbbe","on-primary":"#003824","surface-container-low":"#161d19","outline":"#86948a","on-secondary-container":"#e6ecff","tertiary":"#ffb3af","on-tertiary-container":"#711419"},borderRadius:{DEFAULT:"0.5rem",lg:"1rem",xl:"1.5rem",full:"9999px"},spacing:{md:"16px",lg:"24px",sm:"8px",gutter:"20px",xs:"4px",unit:"4px","container-max":"1280px",xl:"40px"},fontFamily:{"data-mono":["JetBrains Mono"],"coordinate-xs":["JetBrains Mono"],"body-base":["Inter"],h2:["Inter"],h1:["Inter"],"body-sm":["Inter"]},fontSize:{"coordinate-xs":["11px",{lineHeight:"1.2",fontWeight:"600"}],"data-mono":["14px",{lineHeight:"1.4",letterSpacing:"0.02em",fontWeight:"500"}],"body-base":["16px",{lineHeight:"1.6",fontWeight:"400"}],h2:["24px",{lineHeight:"1.3",fontWeight:"600"}],h1:["32px",{lineHeight:"1.2",fontWeight:"600"}],"body-sm":["14px",{lineHeight:"1.5",fontWeight:"400"}],"display-lg":["48px",{lineHeight:"1.1",letterSpacing:"-0.02em",fontWeight:"700"}]}}}}
+    </script>
     <link rel="stylesheet" href="/static/css/style.css?v=20260429-ui-fix">
+    <style>
+        .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;vertical-align:middle}
+        .glass-card{background:rgba(255,255,255,.03);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1)}
+        .glass-card-high{background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.12)}
+        .glow-emerald{box-shadow:0 0 20px rgba(78,222,163,.2)}
+        .glow-blue{box-shadow:0 0 20px rgba(173,198,255,.2)}
+        .pulse-dot{width:7px;height:7px;background:#4edea3;border-radius:50%;animation:pulse-anim 1.4s ease-in-out infinite;display:inline-block}
+        @keyframes pulse-anim{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .btn-loader{display:none;width:16px;height:16px;border:2px solid rgba(0,66,43,.4);border-top-color:#00422b;border-radius:50%;animation:spin .7s linear infinite}
+        input[type=range].slider{width:100%;accent-color:#4edea3;height:3px;margin-top:2px}
+        ::-webkit-scrollbar{width:6px;height:6px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:#3c4a42;border-radius:3px}
+        .input-panel::-webkit-scrollbar{width:4px}
+        .hidden{display:none!important}
+        .mode-tab{display:flex;align-items:center;gap:12px;padding:12px 16px;border:none;background:transparent;color:#bbcabf;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .2s ease;text-align:left;width:100%;text-decoration:none}
+        .mode-tab small{display:block;font-size:.7rem;color:#86948a;margin-top:1px;font-weight:400}
+        .mode-tab:hover{background:rgba(78,222,163,.05);color:#dde4dd}
+        .mode-tab.active{background:rgba(78,222,163,.10);color:#4edea3;border-right:3px solid #4edea3}
+        .mode-tab.active small{color:rgba(78,222,163,.6)}
+        .mode-tab .tab-icon{font-size:1.2rem;flex-shrink:0}
+        .input-wrapper{display:flex;align-items:center;background:#1a211d;border:1px solid #3c4a42;border-radius:6px;overflow:hidden;transition:border-color .2s}
+        .input-wrapper:focus-within{border-color:rgba(173,198,255,.5);box-shadow:0 0 0 2px rgba(173,198,255,.15)}
+        .input-wrapper input{flex:1;background:transparent;border:none;outline:none;padding:6px 10px;font-family:'JetBrains Mono',monospace;font-size:.82rem;color:#dde4dd}
+        .input-unit{padding:0 8px;font-size:.7rem;color:#bbcabf;font-family:'JetBrains Mono',monospace;border-left:1px solid #3c4a42}
+        .upload-zone{border:2px dashed rgba(78,222,163,.3);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(78,222,163,.03)}
+        .upload-zone:hover{border-color:rgba(78,222,163,.6);background:rgba(78,222,163,.06)}
+        .upload-preview img{width:100%;border-radius:8px;max-height:140px;object-fit:cover}
+        .btn-remove-image{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:.7rem}
+        .modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px}
+        .modal.hidden{display:none!important}
+        .chat-messages{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:16px;min-height:200px;max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+        .msg-content{flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 14px;font-size:.83rem;color:#bbcabf;line-height:1.55}
+        .msg-content p{margin-bottom:6px}
+        .msg-content ul{padding-left:16px;display:flex;flex-direction:column;gap:4px}
+        .chat-msg.user .msg-content{background:rgba(173,198,255,.06);border-color:rgba(173,198,255,.12)}
+        .scale-segment{flex:1;padding:6px 4px;text-align:center;font-size:.65rem;font-weight:600;line-height:1.3}
+        .scale-segment.poor{background:rgba(255,180,171,.3);color:#ffb4ab}
+        .scale-segment.moderate{background:rgba(255,208,96,.3);color:#ffd060}
+        .scale-segment.healthy{background:rgba(78,222,163,.25);color:#4edea3}
+        .news-filter-btn.active{background:rgba(78,222,163,.12);color:#4edea3;border-color:rgba(78,222,163,.3)}
+        [data-theme=light]{--background:#f4fbf5;--surface:#f4fbf5;--surface-container:#e8f5ec;--on-surface:#191d1a;--on-surface-variant:#3f4d43;--outline-variant:#b5cabb}
+        @media(max-width:768px){.input-panel{position:relative;top:auto;width:100%;height:auto;border-right:none;border-bottom:1px solid rgba(255,255,255,.08)}.main-content{margin-left:0!important}.app-footer{margin-left:0!important}}
+        /* ══ LIGHT MODE — clean white/slate theme (matches white theme reference) ══ */
+        html:not(.dark) body {
+            background: #f8fafc !important;
+            color: #1e293b !important;
+        }
+        html:not(.dark) header {
+            background: rgba(255,255,255,.85) !important;
+            border-color: #e2e8f0 !important;
+        }
+        html:not(.dark) aside {
+            background: #ffffff !important;
+            border-color: #e2e8f0 !important;
+        }
+        /* Cards */
+        html:not(.dark) .glass-card,
+        html:not(.dark) .glass-card-high {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,.05), 0 2px 4px -1px rgba(0,0,0,.03) !important;
+        }
+        /* Sidebar number/text inputs */
+        html:not(.dark) .input-wrapper {
+            background: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
+        }
+        html:not(.dark) .input-wrapper input {
+            color: #1e293b !important;
+            background: transparent !important;
+        }
+        /* Mode tabs */
+        html:not(.dark) .mode-tab { color: #475569 }
+        html:not(.dark) .mode-tab:hover { background: #f1f5f9 }
+        html:not(.dark) .mode-tab.active {
+            background: rgba(5,150,105,.08);
+            color: #059669;
+            border-right-color: #059669;
+        }
+        /* Inline section headers / group containers */
+        html:not(.dark) .bg-surface-container\/50 {
+            background: #f8fafc !important;
+            border-color: #e2e8f0 !important;
+        }
+        /* Text helpers */
+        html:not(.dark) .text-slate-400 { color: #64748b !important }
+        html:not(.dark) .text-slate-500 { color: #475569 !important }
+        html:not(.dark) .text-emerald-500 { color: #059669 !important }
+        html:not(.dark) .group-title { color: #1e293b !important }
+        html:not(.dark) .group-hint  { color: #64748b !important }
+        html:not(.dark) label        { color: #475569 !important }
+        /* Slate dark bg overrides (header/sidebar/footer use bg-slate-950 utilities) */
+        html:not(.dark) .bg-slate-950,
+        html:not(.dark) footer {
+            background: #ffffff !important;
+            border-color: #e2e8f0 !important;
+            color: #475569 !important;
+        }
+        html:not(.dark) .bg-slate-950\/80 { background: rgba(255,255,255,.9) !important }
+        html:not(.dark) .bg-slate-950\/50 { background: rgba(255,255,255,.75) !important }
+        /* Chat & upload areas */
+        html:not(.dark) .chat-messages    { background: #f8fafc !important }
+        html:not(.dark) .chat-container   { background: #ffffff !important; border-color: #e2e8f0 !important }
+        html:not(.dark) .upload-zone      { border-color: rgba(5,150,105,.3) !important; background: rgba(5,150,105,.04) !important }
+        /* Mandi / disaster / news / chat plain inputs */
+        html:not(.dark) input.mandi-input,
+        html:not(.dark) input.disaster-input,
+        html:not(.dark) input.chat-text-input,
+        html:not(.dark) input.news-search-input {
+            background-color: #f1f5f9 !important;
+            color: #1e293b !important;
+            border-color: #cbd5e1 !important;
+        }
+        html:not(.dark) input.mandi-input::placeholder,
+        html:not(.dark) input.disaster-input::placeholder,
+        html:not(.dark) input.chat-text-input::placeholder,
+        html:not(.dark) input.news-search-input::placeholder {
+            color: #94a3b8 !important;
+        }
+        html:not(.dark) input.mandi-input:focus,
+        html:not(.dark) input.disaster-input:focus,
+        html:not(.dark) input.chat-text-input:focus,
+        html:not(.dark) input.news-search-input:focus {
+            background-color: #ffffff !important;
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 2px rgba(37,99,235,.15) !important;
+        }
+        html:not(.dark) select.disaster-select {
+            background-color: #f1f5f9 !important;
+            color: #1e293b !important;
+            border-color: #cbd5e1 !important;
+        }
+        /* Section cards (mandi, disaster, chat, news) */
+        html:not(.dark) .mandi-section,
+        html:not(.dark) .disaster-section,
+        html:not(.dark) .chat-section,
+        html:not(.dark) .news-section {
+            background: #ffffff !important;
+            border-color: #e2e8f0 !important;
+        }
+        html:not(.dark) .section-header h2 { color: #1e293b !important }
+        /* Scrollbar */
+        html:not(.dark) ::-webkit-scrollbar-thumb { background: #cbd5e1 }
+        /* ── THEMED INPUTS (override browser defaults & Tailwind) ── */
+        input.mandi-input,
+        input.disaster-input,
+        input.chat-text-input,
+        input.news-search-input {
+            background-color: #1a211d !important;
+            color: #dde4dd !important;
+            border-color: #3c4a42 !important;
+            outline: none !important;
+            font-family: 'Inter', system-ui, sans-serif !important;
+        }
+        input.mandi-input::placeholder,
+        input.disaster-input::placeholder,
+        input.chat-text-input::placeholder,
+        input.news-search-input::placeholder {
+            color: #86948a !important;
+            opacity: 1 !important;
+        }
+        input.mandi-input:focus,
+        input.disaster-input:focus,
+        input.chat-text-input:focus,
+        input.news-search-input:focus {
+            background-color: #1f2924 !important;
+            border-color: #adc6ff !important;
+            box-shadow: 0 0 0 2px rgba(173,198,255,.18) !important;
+        }
+        select.disaster-select {
+            background-color: #1a211d !important;
+            color: #dde4dd !important;
+            border-color: #3c4a42 !important;
+            outline: none !important;
+        }
+        select.disaster-select:focus {
+            border-color: #adc6ff !important;
+            box-shadow: 0 0 0 2px rgba(173,198,255,.18) !important;
+        }
+        select.disaster-select option {
+            background-color: #161d19 !important;
+            color: #dde4dd !important;
+        }
+    </style>
+
 </head>
-<body>
+<body class="bg-background text-on-surface font-body-base min-h-screen selection:bg-primary/30">
     <!-- HEADER -->
-    <header class="app-header" id="appHeader">
-        <div class="header-left">
-            <div class="logo">
-                <span class="logo-icon">🌾</span>
-                <div class="logo-text">
-                    <h1>Smart Farming</h1>
-                    <span class="logo-subtitle">AI Decision System for Marginal Farmers</span>
-                </div>
-            </div>
+    <header class="fixed top-0 w-full border-b bg-slate-950/50 backdrop-blur-xl border-white/10 shadow-2xl shadow-emerald-900/20 flex justify-between items-center px-6 h-16 z-50" id="appHeader">
+        <div class="flex items-center gap-8">
+            <span class="text-xl font-black tracking-tighter text-emerald-500">AgriPulse AI</span>
+            <nav class="hidden md:flex items-center gap-6">
+                <a class="text-emerald-400 font-bold border-b-2 border-emerald-500 pb-1 text-sm tracking-wide" href="/analysis">AI Analysis</a>
+                <a class="text-slate-400 hover:text-emerald-300 transition-colors text-sm tracking-wide" href="/dashboard">Dashboard</a>
+            </nav>
         </div>
-        <div class="header-center">
-            <div class="header-stat live"><span class="pulse-dot"></span><span class="stat-text">Live</span></div>
-            <div class="header-stat"><span class="stat-icon">🧠</span><span class="stat-text">ML Models</span></div>
-            <div class="header-stat"><span class="stat-icon">🛰️</span><span class="stat-text">Satellite</span></div>
-            <div class="header-stat"><span class="stat-icon">🌤️</span><span class="stat-text">Weather</span></div>
-            <div class="header-stat"><span class="stat-icon">✨</span><span class="stat-text">Gemini AI</span></div>
+        <div class="hidden md:flex items-center gap-3">
+            <span class="flex items-center gap-2 px-3 py-1 glass-card rounded-full text-xs font-data-mono">
+                <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>LIVE
+            </span>
+            <span class="flex items-center gap-2 px-3 py-1 glass-card rounded-full text-xs font-data-mono"><span class="material-symbols-outlined text-sm text-primary">psychology</span>ML Models</span>
+            <span class="flex items-center gap-2 px-3 py-1 glass-card rounded-full text-xs font-data-mono"><span class="material-symbols-outlined text-sm text-secondary">satellite_alt</span>Satellite</span>
+            <span class="flex items-center gap-2 px-3 py-1 glass-card rounded-full text-xs font-data-mono"><span class="material-symbols-outlined text-sm text-tertiary">auto_awesome</span>Gemini AI</span>
         </div>
-        <div class="header-right">
-            <a href="/dashboard" style="padding:8px 14px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);color:#22c55e;border-radius:8px;font-size:0.82rem;font-weight:600;text-decoration:none;transition:all 0.2s;white-space:nowrap;margin-right:12px;" onmouseover="this.style.background='rgba(34,197,94,0.22)'" onmouseout="this.style.background='rgba(34,197,94,0.12)'">🏡 Farm Dashboard</a>
-            <button class="lang-toggle" id="langToggle" aria-label="Toggle language">
-                <span class="lang-icon" id="langIcon">🌐</span>
-                <span class="lang-text" id="langText">অসমীয়া</span>
+        <div class="flex items-center gap-3">
+            <button class="text-slate-400 hover:text-emerald-300 transition-colors active:scale-95 p-2" id="langToggle" aria-label="Toggle language">
+                <span class="material-symbols-outlined" id="langIcon">language</span><span class="text-xs ml-1" id="langText">অসমীয়া</span>
             </button>
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-                <span class="theme-icon" id="themeIcon">🌙</span>
+            <button class="text-slate-400 hover:text-emerald-300 transition-colors active:scale-95 p-2" id="themeToggle" aria-label="Toggle theme">
+                <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
             </button>
+            <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-xs">AG</div>
         </div>
     </header>
 
     <!-- MAIN LAYOUT -->
-    <div class="app-layout">
-        <!-- LEFT PANEL -->
-        <aside class="input-panel" id="inputPanel">
+    <div class="flex pt-16 min-h-screen">
+        <!-- LEFT PANEL / SIDEBAR -->
+        <aside class="input-panel fixed left-0 top-16 h-[calc(100vh-64px)] overflow-y-auto bg-slate-950/80 backdrop-blur-2xl border-r border-white/10 shadow-xl shadow-black/50 flex flex-col z-40" style="width:420px" id="inputPanel">
+            <div class="p-6 border-b border-white/5">
+                <h2 class="text-emerald-500 text-lg font-bold">Data Input</h2>
+                <p class="text-slate-400 text-xs uppercase tracking-widest mt-1">Precision Agriculture</p>
+            </div>
             <!-- Mode Tabs -->
-            <div class="mode-tabs">
+            <nav class="flex-1 px-2 space-y-1 pt-2">
                 <button class="mode-tab active" id="tabAuto" data-mode="auto">
-                    <span>🛰️</span> Smart Mode
-                    <small>GPS + Weather + Satellite</small>
+                    <span class="material-symbols-outlined tab-icon">psychology</span>
+                    <div><span>Smart Mode</span><small>GPS + Weather + Satellite</small></div>
                 </button>
                 <button class="mode-tab" id="tabManual" data-mode="manual">
-                    <span>🌡️</span> Sensor Mode
-                    <small>Manual Input</small>
+                    <span class="material-symbols-outlined tab-icon">sensors</span>
+                    <div><span>Sensor Mode</span><small>Manual Input</small></div>
                 </button>
                 <button class="mode-tab" id="tabDisease" data-mode="disease">
-                    <span>🌿</span> Disease Scan
-                    <small>Upload Leaf</small>
+                    <span class="material-symbols-outlined tab-icon">pest_control</span>
+                    <div><span>Disease Scan</span><small>Upload Leaf</small></div>
                 </button>
-            </div>
+            </nav>
 
-            <form id="sensorForm" class="sensor-form">
-                <!-- AUTO MODE: Location -->
+            <form id="sensorForm" class="px-2 pb-4 space-y-2 overflow-y-auto">
+                <!-- AUTO MODE -->
                 <div class="mode-section auto-section" id="autoSection">
-                    <div class="input-group location-group">
-                        <h3 class="group-title">📍 Your Location</h3>
-                        <button type="button" class="btn-location" id="getLocationBtn">
+                    <div class="mx-2 mb-2 bg-surface-container/50 border border-outline-variant/50 rounded-lg p-3">
+                        <h3 class="text-coordinate-xs font-coordinate-xs text-on-surface-variant uppercase tracking-wider mb-2">📍 Your Location</h3>
+                        <button type="button" class="w-full flex items-center gap-3 px-3 py-2 bg-primary/10 border border-primary/25 rounded-lg text-on-surface hover:bg-primary/20 transition-all" id="getLocationBtn">
                             <span class="loc-icon">📍</span>
                             <div class="loc-text">
                                 <strong>Detect My Location</strong>
-                                <small>Uses GPS for weather & satellite data</small>
+                                <small>Uses GPS for weather &amp; satellite data</small>
                             </div>
                         </button>
                         <div class="location-info hidden" id="locationInfo">
@@ -79,43 +271,30 @@
                             <div class="loc-coords" id="locCoords"></div>
                         </div>
                     </div>
-
-                    <div class="input-group">
-                        <h3 class="group-title">🧪 Soil Data (Sensor / Estimated)</h3>
-                        <p class="group-hint">Enter if you have soil test data, or leave defaults</p>
-                        <div class="input-row">
-                            <div class="input-field">
-                                <label for="autoN">Nitrogen (N)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="autoN" value="60" min="0" max="200">
-                                    <span class="input-unit">kg/ha</span>
+                    <div id="autoSoilGroup" class="hidden">
+                        <div class="mx-2 mb-2 bg-surface-container/50 border border-outline-variant/50 rounded-lg p-3">
+                            <h3 class="group-title">🧪 Soil Data (Sensor / Estimated)</h3>
+                            <p class="group-hint">Enter if you have soil test data, or leave defaults</p>
+                            <div class="input-row">
+                                <div class="input-field">
+                                    <label for="autoN">Nitrogen (N)</label>
+                                    <div class="input-wrapper"><input type="number" id="autoN" value="60" min="0" max="200"><span class="input-unit">kg/ha</span></div>
                                 </div>
-                            </div>
-                            <div class="input-field">
-                                <label for="autoP">Phosphorus (P)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="autoP" value="40" min="0" max="150">
-                                    <span class="input-unit">kg/ha</span>
+                                <div class="input-field">
+                                    <label for="autoP">Phosphorus (P)</label>
+                                    <div class="input-wrapper"><input type="number" id="autoP" value="40" min="0" max="150"><span class="input-unit">kg/ha</span></div>
                                 </div>
-                            </div>
-                            <div class="input-field">
-                                <label for="autoK">Potassium (K)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="autoK" value="40" min="0" max="200">
-                                    <span class="input-unit">kg/ha</span>
+                                <div class="input-field">
+                                    <label for="autoK">Potassium (K)</label>
+                                    <div class="input-wrapper"><input type="number" id="autoK" value="40" min="0" max="200"><span class="input-unit">kg/ha</span></div>
                                 </div>
-                            </div>
-                            <div class="input-field">
-                                <label for="autoPH">Soil pH</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="autoPH" value="6.5" min="0" max="14" step="0.1">
-                                    <span class="input-unit">pH</span>
+                                <div class="input-field">
+                                    <label for="autoPH">Soil pH</label>
+                                    <div class="input-wrapper"><input type="number" id="autoPH" value="6.5" min="0" max="14" step="0.1"><span class="input-unit">pH</span></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Live Weather Preview -->
                     <div class="weather-preview hidden" id="weatherPreview">
                         <div class="weather-header">
                             <img id="weatherIcon" src="" alt="weather">
@@ -128,133 +307,137 @@
                     </div>
                 </div>
 
-                <!-- MANUAL MODE: Full Inputs -->
+                <!-- MANUAL MODE -->
                 <div class="mode-section manual-section hidden" id="manualSection">
-                    <div class="input-group">
+                    <div class="mx-2 mb-2 bg-surface-container/50 border border-outline-variant/50 rounded-lg p-3">
                         <h3 class="group-title">🧪 Soil Nutrients</h3>
                         <div class="input-row">
                             <div class="input-field">
                                 <label for="inputN">Nitrogen (N)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="inputN" value="80" min="0" max="200">
-                                    <span class="input-unit">kg/ha</span>
-                                </div>
+                                <div class="input-wrapper"><input type="number" id="inputN" value="80" min="0" max="200"><span class="input-unit">kg/ha</span></div>
                                 <input type="range" class="slider" id="sliderN" min="0" max="200" value="80">
                             </div>
                             <div class="input-field">
                                 <label for="inputP">Phosphorus (P)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="inputP" value="45" min="0" max="150">
-                                    <span class="input-unit">kg/ha</span>
-                                </div>
+                                <div class="input-wrapper"><input type="number" id="inputP" value="45" min="0" max="150"><span class="input-unit">kg/ha</span></div>
                                 <input type="range" class="slider" id="sliderP" min="0" max="150" value="45">
                             </div>
                             <div class="input-field">
                                 <label for="inputK">Potassium (K)</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="inputK" value="40" min="0" max="200">
-                                    <span class="input-unit">kg/ha</span>
-                                </div>
+                                <div class="input-wrapper"><input type="number" id="inputK" value="40" min="0" max="200"><span class="input-unit">kg/ha</span></div>
                                 <input type="range" class="slider" id="sliderK" min="0" max="200" value="40">
                             </div>
                         </div>
                     </div>
-                    <div class="input-group">
-                        <h3 class="group-title">☁️ Weather & Soil</h3>
+                    <div class="mx-2 mb-2 bg-surface-container/50 border border-outline-variant/50 rounded-lg p-3">
+                        <h3 class="group-title">☁️ Weather &amp; Soil</h3>
                         <div class="input-row">
                             <div class="input-field">
                                 <label for="inputTemp">Temperature</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="inputTemp" value="26" min="0" max="50" step="0.5">
-                                    <span class="input-unit">°C</span>
-                                </div>
+                                <div class="input-wrapper"><input type="number" id="inputTemp" value="26" min="0" max="50" step="0.5"><span class="input-unit">°C</span></div>
                                 <input type="range" class="slider" id="sliderTemp" min="0" max="50" value="26" step="0.5">
                             </div>
                             <div class="input-field">
                                 <label for="inputHumidity">Humidity</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="inputHumidity" value="70" min="0" max="100">
-                                    <span class="input-unit">%</span>
-                                </div>
+                                <div class="input-wrapper"><input type="number" id="inputHumidity" value="70" min="0" max="100"><span class="input-unit">%</span></div>
                                 <input type="range" class="slider" id="sliderHumidity" min="0" max="100" value="70">
                             </div>
                             <div class="input-field">
                                 <label for="inputPH">Soil pH</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="inputPH" value="6.5" min="0" max="14" step="0.1">
-                                    <span class="input-unit">pH</span>
-                                </div>
+                                <div class="input-wrapper"><input type="number" id="inputPH" value="6.5" min="0" max="14" step="0.1"><span class="input-unit">pH</span></div>
                                 <input type="range" class="slider" id="sliderPH" min="0" max="14" value="6.5" step="0.1">
                             </div>
                             <div class="input-field">
                                 <label for="inputRainfall">Rainfall</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="inputRainfall" value="150" min="0" max="500">
-                                    <span class="input-unit">mm</span>
-                                </div>
+                                <div class="input-wrapper"><input type="number" id="inputRainfall" value="150" min="0" max="500"><span class="input-unit">mm</span></div>
                                 <input type="range" class="slider" id="sliderRainfall" min="0" max="500" value="150">
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-predict" id="predictBtn">
-                    <span class="btn-icon">🚀</span>
-                    <span class="btn-text">Analyze & Predict</span>
+                <button type="submit" class="mx-2 mt-3 mb-2 flex items-center justify-center gap-2 w-[calc(100%-16px)] py-3 bg-primary hover:bg-primary-fixed text-on-primary-container font-bold rounded-lg active:scale-95 transition-all shadow-lg shadow-emerald-500/20 glow-emerald" id="predictBtn">
+                    <span class="material-symbols-outlined text-[18px]">rocket_launch</span>
+                    <span class="btn-text">Analyze &amp; Predict</span>
                     <span class="btn-loader" id="btnLoader"></span>
                 </button>
             </form>
 
-            <!-- DISEASE MODE: Image Upload -->
-            <div id="diseaseUploadSidebar" class="mode-section hidden" style="margin-top: 15px;">
+            <!-- DISEASE MODE -->
+            <div id="diseaseUploadSidebar" class="mode-section hidden px-3 pb-4">
                 <div class="input-group">
                     <h3 class="group-title">📸 Upload Leaf Image</h3>
                     <p class="group-hint">Select a clear image of the diseased leaf for AI analysis.</p>
-                    <div class="disease-upload" style="margin-top: 10px;">
+                    <div style="margin-top:10px;">
                         <div class="upload-zone" id="uploadZone">
                             <input type="file" id="diseaseImageInput" accept="image/*" hidden>
-                            <div class="upload-content" id="uploadContent"><span class="upload-icon">📸</span><p class="upload-text">Drop leaf image or <strong>click to upload</strong></p><p class="upload-hint">JPG, PNG | Max 10MB</p></div>
-                            <div class="upload-preview hidden" id="uploadPreview"><img id="previewImage" alt="Leaf"><button class="btn-remove-image" id="removeImage">✕</button></div>
+                            <div class="upload-content" id="uploadContent">
+                                <span class="upload-icon">📸</span>
+                                <p class="upload-text">Drop leaf image or <strong>click to upload</strong></p>
+                                <p class="upload-hint">JPG, PNG | Max 10MB</p>
+                            </div>
+                            <div class="upload-preview hidden" id="uploadPreview">
+                                <img id="previewImage" alt="Leaf">
+                                <button class="btn-remove-image" id="removeImage">✕</button>
+                            </div>
                         </div>
-                        <button class="btn-detect" id="detectBtn" disabled style="width: 100%; margin-top: 15px;"><span>🔬 Detect Disease</span></button>
+                        <button class="w-full mt-3 flex items-center justify-center gap-2 py-2 bg-secondary/10 border border-secondary/30 rounded-lg text-secondary font-semibold text-sm hover:bg-secondary/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed" id="detectBtn" disabled>
+                            <span class="material-symbols-outlined text-sm">biotech</span> Detect Disease
+                        </button>
                     </div>
                 </div>
             </div>
-        </aside>
 
+            <!-- Bottom nav links -->
+            <div class="p-4 border-t border-white/5 space-y-1">
+                <a class="text-slate-500 hover:text-emerald-300 px-4 py-2 flex items-center gap-3 text-xs transition-opacity" href="#">
+                    <span class="material-symbols-outlined text-sm">settings</span>Settings
+                </a>
+                <a class="text-slate-500 hover:text-emerald-300 px-4 py-2 flex items-center gap-3 text-xs transition-opacity" href="#">
+                    <span class="material-symbols-outlined text-sm">contact_support</span>Support
+                </a>
+            </div>
+        </aside>
         <!-- MAIN CONTENT -->
-        <main class="main-content" id="mainContent">
+        <main class="flex-1 pt-8 px-6 pb-12 min-h-screen" style="margin-left:420px" id="mainContent">
+            <div class="max-w-container-max mx-auto space-y-8">
+
             <!-- Welcome -->
-            <div class="welcome-state" id="welcomeState">
-                <div class="welcome-icon">🌾</div>
-                <h2>AI-Based Crop Recommendation & Advisory</h2>
-                <p>Empowering marginal farmers with satellite imagery, real-time weather, soil sensor integration, and AI-driven advisory services.</p>
-                <div class="welcome-features">
-                    <div class="welcome-feature"><span>🛰️</span><p>Planet Satellite</p></div>
-                    <div class="welcome-feature"><span>🌤️</span><p>Live Weather</p></div>
-                    <div class="welcome-feature"><span>🌾</span><p>Crop AI</p></div>
-                    <div class="welcome-feature"><span>📈</span><p>Yield & Price</p></div>
-                    <div class="welcome-feature"><span>🌿</span><p>Disease AI</p></div>
-                    <div class="welcome-feature"><span>🧠</span><p>Gemini Advisory</p></div>
+            <div class="flex flex-col items-center justify-center text-center py-24 max-w-2xl mx-auto" id="welcomeState">
+                <div class="text-7xl mb-6 drop-shadow-lg">🌾</div>
+                <h1 class="text-h1 font-h1 text-on-surface mb-4 tracking-tight">AI Crop Recommendation &amp; Advisory</h1>
+                <p class="text-on-surface-variant text-body-base leading-relaxed mb-10">Empowering marginal farmers with satellite imagery, real-time weather, soil sensor integration, and AI-driven advisory services.</p>
+                <div class="flex flex-wrap justify-center gap-4 mb-10">
+                    <div class="glass-card rounded-xl px-5 py-4 flex flex-col items-center gap-2 hover:border-primary/30 hover:-translate-y-1 transition-all cursor-default">
+                        <span class="material-symbols-outlined text-2xl text-secondary">satellite_alt</span><p class="text-xs text-on-surface-variant font-medium">Planet Satellite</p>
+                    </div>
+                    <div class="glass-card rounded-xl px-5 py-4 flex flex-col items-center gap-2 hover:border-primary/30 hover:-translate-y-1 transition-all cursor-default">
+                        <span class="material-symbols-outlined text-2xl text-primary">cloud</span><p class="text-xs text-on-surface-variant font-medium">Live Weather</p>
+                    </div>
+                    <div class="glass-card rounded-xl px-5 py-4 flex flex-col items-center gap-2 hover:border-primary/30 hover:-translate-y-1 transition-all cursor-default">
+                        <span class="material-symbols-outlined text-2xl text-primary">grass</span><p class="text-xs text-on-surface-variant font-medium">Crop AI</p>
+                    </div>
+                    <div class="glass-card rounded-xl px-5 py-4 flex flex-col items-center gap-2 hover:border-primary/30 hover:-translate-y-1 transition-all cursor-default">
+                        <span class="material-symbols-outlined text-2xl text-tertiary">trending_up</span><p class="text-xs text-on-surface-variant font-medium">Yield &amp; Price</p>
+                    </div>
+                    <div class="glass-card rounded-xl px-5 py-4 flex flex-col items-center gap-2 hover:border-primary/30 hover:-translate-y-1 transition-all cursor-default">
+                        <span class="material-symbols-outlined text-2xl text-primary">pest_control</span><p class="text-xs text-on-surface-variant font-medium">Disease AI</p>
+                    </div>
+                    <div class="glass-card rounded-xl px-5 py-4 flex flex-col items-center gap-2 hover:border-primary/30 hover:-translate-y-1 transition-all cursor-default">
+                        <span class="material-symbols-outlined text-2xl text-secondary">psychology</span><p class="text-xs text-on-surface-variant font-medium">Gemini Advisory</p>
+                    </div>
                 </div>
-                <div class="welcome-cta">
-                    <p>👆 Select <strong>Smart Mode</strong> and click <strong>Detect My Location</strong> to start, or use <strong>Sensor Mode</strong> for manual input.</p>
+                <div class="glass-card rounded-xl px-5 py-4 text-body-sm text-on-surface-variant border-primary/20">
+                    <p>👆 Select <strong class="text-primary">Smart Mode</strong> and click <strong class="text-primary">Detect My Location</strong> to start, or use <strong class="text-primary">Sensor Mode</strong> for manual input.</p>
                 </div>
             </div>
 
             <!-- Results -->
-            <div class="results-state hidden" id="resultsState">
-                <!-- Location & Weather Banner -->
-                <div class="weather-banner hidden" id="weatherBanner">
-                    <div class="banner-location">
-                        <span class="banner-icon">📍</span>
-                        <span id="bannerCity">—</span>
-                    </div>
-                    <div class="banner-weather">
-                        <img id="bannerWeatherIcon" src="" alt="">
-                        <span id="bannerTemp">—</span>
-                        <span id="bannerDesc">—</span>
-                    </div>
+            <div class="hidden space-y-6" id="resultsState">
+                <!-- Weather Banner -->
+                <div class="hidden flex flex-wrap items-center gap-4 px-5 py-3 glass-card rounded-xl border-secondary/20" id="weatherBanner">
+                    <div class="banner-location"><span class="banner-icon">📍</span><span id="bannerCity">—</span></div>
+                    <div class="banner-weather"><img id="bannerWeatherIcon" src="" alt=""><span id="bannerTemp">—</span><span id="bannerDesc">—</span></div>
                     <div class="banner-extras">
                         <span>💧 <span id="bannerHumidity">—</span></span>
                         <span>🌧️ <span id="bannerRainfall">—</span></span>
@@ -264,21 +447,55 @@
                 </div>
 
                 <!-- Result Cards -->
-                <section class="results-grid" id="resultsGrid">
-                    <div class="result-card crop-card"><div class="card-header"><span class="card-icon">🌾</span><h3>Recommended Crop</h3><button class="btn-alternatives" id="altCropsBtn" title="Show alternative crops if you don't want this one">🔄 Alternatives</button></div><div class="card-value" id="cropValue">—</div><div class="card-detail" id="cropConfidence">Confidence: —</div><div class="card-extra" id="topCrops"></div></div>
-                    <div class="result-card yield-card"><div class="card-header"><span class="card-icon">📈</span><h3>Yield Prediction</h3></div><div class="card-value" id="yieldValue">—</div><div class="card-detail" id="yieldUnit">tons/hectare</div></div>
-                    <div class="result-card price-card"><div class="card-header"><span class="card-icon">💰</span><h3>Market Price</h3></div><div class="card-value" id="priceValue">—</div><div class="card-detail" id="priceUnit">₹/quintal</div><div class="card-extra" id="mspInfo"></div></div>
-                    <div class="result-card profit-card"><div class="card-header"><span class="card-icon">🤑</span><h3>Expected Profit</h3></div><div class="card-value" id="profitValue">—</div><div class="card-detail" id="profitUnit">₹/hectare</div></div>
-                    <div class="result-card market-card"><div class="card-header"><span class="card-icon">📊</span><h3>Market Timing</h3></div><div class="card-value" id="marketDecision">—</div><div class="card-detail" id="marketReason"></div></div>
-                    <div class="result-card risk-card"><div class="card-header"><span class="card-icon">⚡</span><h3>Risk Level</h3></div><div class="card-value" id="riskLevel">—</div><div class="card-detail" id="riskScore"></div><div class="card-extra" id="riskReasons"></div></div>
+                <section>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-h2 font-h2 text-on-surface">Analysis Results</h2>
+                    </div>
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-gutter" id="resultsGrid">
+                        <div class="result-card crop-card glass-card rounded-xl p-md">
+                            <div class="card-header"><span class="card-icon">🌾</span>
+                                <h3>Recommended Crop</h3><button class="btn-alternatives" id="altCropsBtn" title="Show alternative crops">🔄 Alternatives</button>
+                            </div>
+                            <div class="card-value" id="cropValue">—</div>
+                            <div class="card-detail" id="cropConfidence">Confidence: —</div>
+                            <div class="card-extra" id="topCrops"></div>
+                        </div>
+                        <div class="result-card yield-card glass-card rounded-xl p-md">
+                            <div class="card-header"><span class="card-icon">📈</span><h3>Yield Prediction</h3></div>
+                            <div class="card-value" id="yieldValue">—</div>
+                            <div class="card-detail" id="yieldUnit">tons/hectare</div>
+                        </div>
+                        <div class="result-card price-card glass-card rounded-xl p-md">
+                            <div class="card-header"><span class="card-icon">💰</span><h3>Market Price</h3></div>
+                            <div class="card-value" id="priceValue">—</div>
+                            <div class="card-detail" id="priceUnit">₹/quintal</div>
+                            <div class="card-extra" id="mspInfo"></div>
+                        </div>
+                        <div class="result-card profit-card glass-card rounded-xl p-md">
+                            <div class="card-header"><span class="card-icon">🤑</span><h3>Expected Profit</h3></div>
+                            <div class="card-value" id="profitValue">—</div>
+                            <div class="card-detail" id="profitUnit">₹/hectare</div>
+                        </div>
+                        <div class="result-card market-card glass-card rounded-xl p-md">
+                            <div class="card-header"><span class="card-icon">📊</span><h3>Market Timing</h3></div>
+                            <div class="card-value" id="marketDecision">—</div>
+                            <div class="card-detail" id="marketReason"></div>
+                        </div>
+                        <div class="result-card risk-card glass-card rounded-xl p-md">
+                            <div class="card-header"><span class="card-icon">⚡</span><h3>Risk Level</h3></div>
+                            <div class="card-value" id="riskLevel">—</div>
+                            <div class="card-detail" id="riskScore"></div>
+                            <div class="card-extra" id="riskReasons"></div>
+                        </div>
+                    </div>
                 </section>
 
-                <!-- Alert Banners -->
+                <!-- Alerts -->
                 <section class="alerts-section" id="alertsSection"></section>
 
                 <!-- Alternative Crops Modal -->
                 <div class="modal hidden" id="altCropsModal">
-                    <div class="modal-content">
+                    <div class="modal-content glass-card-high">
                         <div class="modal-header">
                             <h2>🌾 Alternative Crop Recommendations</h2>
                             <button class="modal-close" id="closeAltCrops">✕</button>
@@ -286,34 +503,48 @@
                         <div class="modal-body">
                             <p class="modal-intro">If you don't want to grow the recommended crop, here are other suitable options based on your soil and climate conditions:</p>
                             <div class="alternatives-list" id="alternativesList">
-                                <p class="loading">⏳ Loading alternatives...</p>
+                                <p style="font-size:0.82rem;color:var(--on-surface-variant);">⏳ Loading alternatives...</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Risk Breakdown -->
-                <section class="risk-section" id="riskSection">
+                <section class="risk-section glass-card rounded-xl p-md" id="riskSection">
                     <div class="section-header"><h2>⚡ Risk Analysis</h2></div>
                     <div class="risk-factors" id="riskFactors"></div>
                 </section>
 
                 <!-- NDVI Timeline -->
-                <section class="ndvi-timeline-section" id="ndviTimelineSection">
-                    <div class="section-header"><h2>📈 NDVI Crop Health Timeline</h2><span class="timeline-badge">12 Months</span></div>
+                <section class="glass-card rounded-xl p-md" id="ndviTimelineSection">
+                    <div class="section-header">
+                        <h2 class="text-h2 font-h2">📈 NDVI Crop Health Timeline</h2><span class="timeline-badge">12 Months</span>
+                    </div>
                     <div class="chart-card ndvi-timeline-card"><canvas id="ndviTimelineChart"></canvas></div>
                 </section>
 
-                <!-- NDVI -->
-                <section class="ndvi-section" id="ndviSection">
-                    <div class="section-header"><h2>📡 NDVI Satellite Crop Health</h2><span class="ndvi-source-badge" id="ndviSourceBadge"></span></div>
+                <!-- NDVI Satellite -->
+                <section class="ndvi-section glass-card rounded-xl p-md" id="ndviSection">
+                    <div class="section-header">
+                        <h2>📡 NDVI Satellite Crop Health</h2><span class="ndvi-source-badge" id="ndviSourceBadge"></span>
+                    </div>
                     <div class="ndvi-grid">
                         <div class="ndvi-gauge-container">
                             <canvas id="ndviGauge" width="280" height="200"></canvas>
-                            <div class="ndvi-value-display"><span class="ndvi-number" id="ndviNumber">—</span><span class="ndvi-label" id="ndviLabel">—</span></div>
+                            <div class="ndvi-value-display">
+                                <span class="ndvi-number" id="ndviNumber">—</span>
+                                <span class="ndvi-label" id="ndviLabel">—</span>
+                            </div>
                         </div>
                         <div class="ndvi-details" id="ndviDetails">
-                            <div class="ndvi-scale"><div class="scale-label">NDVI Scale</div><div class="scale-bar"><div class="scale-segment poor">Poor<br>0-0.3</div><div class="scale-segment moderate">Moderate<br>0.3-0.6</div><div class="scale-segment healthy">Healthy<br>0.6-1.0</div></div></div>
+                            <div class="ndvi-scale">
+                                <div class="scale-label">NDVI Scale</div>
+                                <div class="scale-bar">
+                                    <div class="scale-segment poor">Poor<br>0–0.3</div>
+                                    <div class="scale-segment moderate">Moderate<br>0.3–0.6</div>
+                                    <div class="scale-segment healthy">Healthy<br>0.6–1.0</div>
+                                </div>
+                            </div>
                             <div class="ndvi-satellite-info hidden" id="ndviSatelliteInfo"></div>
                             <div class="ndvi-factors" id="ndviFactors"></div>
                         </div>
@@ -321,66 +552,53 @@
                 </section>
 
                 <!-- Disease Detection -->
-                <section class="disease-section" id="diseaseSection">
+                <section class="disease-section glass-card rounded-xl p-md" id="diseaseSection">
                     <div class="section-header"><h2>🌿 Plant Disease Detection Results</h2></div>
-                    <div class="disease-results-container" style="display: flex; flex-direction: column; gap: 20px;">
-                        <!-- Upload moved to sidebar -->
-                        <div class="disease-result hidden" id="diseaseResult" style="width: 100%;">
-                                <!-- Disease header: icon + name + confidence -->
-                                <div class="disease-header">
-                                    <span class="disease-icon" id="diseaseIcon">🦠</span>
-                                    <div>
-                                        <h3 id="diseaseName">—</h3>
-                                        <div class="disease-confidence" id="diseaseConfidence">—</div>
-                                    </div>
-                                </div>
-
-                                <!-- Severity badge -->
-                                <div id="diseaseSeverityWrapper" style="margin:10px 0 6px;">
-                                    <span id="diseaseSeverityBadge" style="display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:700;letter-spacing:.03em;"></span>
-                                    <span id="diseaseSeverityDesc" style="margin-left:8px;font-size:.78rem;color:var(--text-secondary);"></span>
-                                </div>
-
-                                <!-- Urgency note (Gemini) -->
-                                <div id="diseaseUrgencyNote" class="hidden" style="margin:8px 0;padding:8px 12px;border-radius:8px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);font-size:.8rem;color:#ef4444;font-weight:500;"></div>
-
-                                <!-- Baseline treatment -->
-                                <div class="disease-treatment" id="diseaseTreatment">
-                                    <h4>💊 Treatment</h4>
-                                    <p id="treatmentText">—</p>
-                                </div>
-
-                                <!-- AI Remedies (Gemini) -->
-                                <div id="diseaseRemediesWrapper" class="hidden" style="margin-top:12px;">
-                                    <h4 style="font-size:.85rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;">🧪 Remedies &amp; Pesticides</h4>
-                                    <ul id="diseaseRemediesList" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:.8rem;color:var(--text-secondary);"></ul>
-                                    <!-- Pesticide table -->
-                                    <div id="diseasePesticidesWrapper" class="hidden" style="margin-top:10px;overflow-x:auto;">
-                                        <table id="diseasePesticidesTable" style="width:100%;border-collapse:collapse;font-size:.75rem;">
-                                            <thead>
-                                                <tr style="background:rgba(34,197,94,.1);color:var(--text-primary);">
-                                                    <th style="padding:6px 10px;text-align:left;border-radius:6px 0 0 6px;">Product</th>
-                                                    <th style="padding:6px 10px;text-align:left;">Dose / Litre</th>
-                                                    <th style="padding:6px 10px;text-align:left;border-radius:0 6px 6px 0;">Frequency</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="diseasePesticidesBody"></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <!-- Preventive Measures (Gemini) -->
-                                <div id="diseasePreventionWrapper" class="hidden" style="margin-top:12px;">
-                                    <h4 style="font-size:.85rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;">🛡️ Preventive Measures</h4>
-                                    <ul id="diseasePreventionList" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:.8rem;color:var(--text-secondary);"></ul>
+                    <div class="disease-results-container" style="display:flex;flex-direction:column;gap:20px;">
+                        <div class="disease-result hidden" id="diseaseResult" style="width:100%;">
+                            <div class="disease-header">
+                                <span class="disease-icon" id="diseaseIcon">🦠</span>
+                                <div>
+                                    <h3 id="diseaseName">—</h3>
+                                    <div class="disease-confidence" id="diseaseConfidence">—</div>
                                 </div>
                             </div>
+                            <div id="diseaseSeverityWrapper" style="margin:10px 0 6px;">
+                                <span id="diseaseSeverityBadge" style="display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:700;letter-spacing:.03em;"></span>
+                                <span id="diseaseSeverityDesc" style="margin-left:8px;font-size:.78rem;color:var(--on-surface-variant);"></span>
+                            </div>
+                            <div id="diseaseUrgencyNote" class="hidden" style="margin:8px 0;padding:8px 12px;border-radius:8px;background:rgba(255,180,171,.08);border:1px solid rgba(255,180,171,.18);font-size:.8rem;color:var(--error);font-weight:500;"></div>
+                            <div class="disease-treatment" id="diseaseTreatment">
+                                <h4>💊 Treatment</h4>
+                                <p id="treatmentText">—</p>
+                            </div>
+                            <div id="diseaseRemediesWrapper" class="hidden" style="margin-top:12px;">
+                                <h4 style="font-size:.85rem;font-weight:700;color:var(--on-surface);margin-bottom:8px;">🧪 Remedies &amp; Pesticides</h4>
+                                <ul id="diseaseRemediesList" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:.8rem;color:var(--on-surface-variant);"></ul>
+                                <div id="diseasePesticidesWrapper" class="hidden" style="margin-top:10px;overflow-x:auto;">
+                                    <table id="diseasePesticidesTable" style="width:100%;border-collapse:collapse;font-size:.75rem;">
+                                        <thead>
+                                            <tr style="background:rgba(78,222,163,.1);color:var(--on-surface);">
+                                                <th style="padding:6px 10px;text-align:left;border-radius:6px 0 0 6px;">Product</th>
+                                                <th style="padding:6px 10px;text-align:left;">Dose / Litre</th>
+                                                <th style="padding:6px 10px;text-align:left;border-radius:0 6px 6px 0;">Frequency</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="diseasePesticidesBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div id="diseasePreventionWrapper" class="hidden" style="margin-top:12px;">
+                                <h4 style="font-size:.85rem;font-weight:700;color:var(--on-surface);margin-bottom:8px;">🛡️ Preventive Measures</h4>
+                                <ul id="diseasePreventionList" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:.8rem;color:var(--on-surface-variant);"></ul>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
                 <!-- Charts -->
-                <section class="charts-section" id="chartsSection">
-                    <div class="section-header"><h2>📊 Analytics & Visualizations</h2></div>
+                <section class="glass-card rounded-xl p-md" id="chartsSection">
+                    <div class="section-header"><h2 class="text-h2 font-h2">📊 Analytics &amp; Visualizations</h2></div>
                     <div class="charts-grid">
                         <div class="chart-card"><h3>🌾 Crop Probabilities</h3><canvas id="cropChart"></canvas></div>
                         <div class="chart-card"><h3>📊 Feature Importance (Crop)</h3><canvas id="featureChart"></canvas></div>
@@ -390,16 +608,20 @@
                 </section>
 
                 <!-- Advisory -->
-                <section class="advisory-section" id="advisorySection">
-                    <div class="section-header"><h2>🧠 Smart Advisory</h2><span class="advisory-source-badge" id="advisorySourceBadge"></span></div>
+                <section class="advisory-section glass-card rounded-xl p-md" id="advisorySection">
+                    <div class="section-header">
+                        <h2 class="text-h2 font-h2">🧠 Smart Advisory</h2><span class="advisory-source-badge" id="advisorySourceBadge"></span>
+                    </div>
                     <div class="advisory-summary" id="advisorySummary"></div>
                     <div class="advisory-list" id="advisoryList"></div>
                     <div class="advisory-extras" id="advisoryExtras"></div>
                 </section>
 
                 <!-- Mandi Prices -->
-                <section class="mandi-section" id="mandiSection">
-                    <div class="section-header"><h2>🏪 Live Mandi Prices</h2><span class="mandi-badge">data.gov.in</span></div>
+                <section class="mandi-section glass-card rounded-xl p-md" id="mandiSection">
+                    <div class="section-header">
+                        <h2 class="text-h2 font-h2">🏪 Live Mandi Prices</h2><span class="mandi-badge">data.gov.in</span>
+                    </div>
                     <div class="mandi-controls">
                         <div class="mandi-search">
                             <input type="text" id="mandiCommodity" placeholder="Commodity (e.g. Rice, Wheat)" class="mandi-input">
@@ -413,8 +635,10 @@
                 </section>
 
                 <!-- Disaster Decision Engine -->
-                <section class="disaster-section" id="disasterSection">
-                    <div class="section-header"><h2>🌊 Disaster Decision Engine</h2><span class="disaster-badge">Gemini AI</span></div>
+                <section class="disaster-section glass-card rounded-xl p-md" id="disasterSection">
+                    <div class="section-header">
+                        <h2 class="text-h2 font-h2">🌊 Disaster Decision Engine</h2><span class="disaster-badge">Gemini AI</span>
+                    </div>
                     <div class="disaster-controls">
                         <select id="disasterType" class="disaster-select">
                             <option value="flood">🌊 Flood</option>
@@ -437,11 +661,23 @@
                 </section>
 
                 <!-- AI Chatbot -->
-                <section class="chat-section" id="chatSection">
-                    <div class="section-header"><h2>💬 Ask Farming AI</h2><span class="chat-badge">Gemini AI</span></div>
+                <section class="chat-section glass-card rounded-xl p-md" id="chatSection">
+                    <div class="section-header">
+                        <h2 class="text-h2 font-h2">💬 Ask Farming AI</h2><span class="chat-badge">Gemini AI</span>
+                    </div>
                     <div class="chat-container">
                         <div class="chat-messages" id="chatMessages">
-                            <div class="chat-msg bot"><div class="msg-avatar">🧠</div><div class="msg-content"><p data-i18n="chat_welcome">Hi! I'm your AI farming advisor. Ask me anything about crop suitability, farming techniques, soil management, or government schemes. For example:</p><ul><li data-i18n="chat_ex1">"Is sugarcane suitable for my area?"</li><li data-i18n="chat_ex2">"What fertilizer schedule for rice?"</li><li data-i18n="chat_ex3">"Best crop for sandy soil with low rainfall?"</li></ul></div></div>
+                            <div class="chat-msg bot">
+                                <div class="msg-avatar">🧠</div>
+                                <div class="msg-content">
+                                    <p data-i18n="chat_welcome">Hi! I'm your AI farming advisor. Ask me anything about crop suitability, farming techniques, soil management, or government schemes. For example:</p>
+                                    <ul>
+                                        <li data-i18n="chat_ex1">"Is sugarcane suitable for my area?"</li>
+                                        <li data-i18n="chat_ex2">"What fertilizer schedule for rice?"</li>
+                                        <li data-i18n="chat_ex3">"Best crop for sandy soil with low rainfall?"</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                         <div class="chat-input-area">
                             <button class="btn-voice" id="voiceBtn" aria-label="Voice input" title="Speak in Assamese or English">
@@ -453,66 +689,59 @@
                     </div>
                 </section>
 
-                <!-- Agricultural News & Subsidies -->
-                <section class="news-section" id="newsSection">
+                <!-- Agricultural News -->
+                <section class="news-section glass-card rounded-xl p-md" id="newsSection">
                     <div class="section-header">
-                        <h2>📰 Smart Farming News</h2>
+                        <h2 class="text-h2 font-h2">📰 Smart Farming News</h2>
                         <span class="news-badge">The News API</span>
                     </div>
-                    
-                    <!-- News Filters -->
                     <div class="news-filters">
-                        <button class="news-filter-btn active" data-type="agriculture">
-                            <span>🌾</span> Agriculture
-                        </button>
-                        <button class="news-filter-btn" data-type="weather">
-                            <span>🌦️</span> Weather
-                        </button>
-                        <button class="news-filter-btn" data-type="prices">
-                            <span>💰</span> Market Prices
-                        </button>
-                        <button class="news-filter-btn" data-type="technology">
-                            <span>🤖</span> Technology
-                        </button>
-                        <button class="news-filter-btn" data-type="assam">
-                            <span>🏞️</span> Assam Farming
-                        </button>
-                        <button class="news-filter-btn" data-type="all">
-                            <span>📰</span> All News
-                        </button>
+                        <button class="news-filter-btn active" data-type="agriculture"><span>🌾</span> Agriculture</button>
+                        <button class="news-filter-btn" data-type="weather"><span>🌦️</span> Weather</button>
+                        <button class="news-filter-btn" data-type="prices"><span>💰</span> Market Prices</button>
+                        <button class="news-filter-btn" data-type="technology"><span>🤖</span> Technology</button>
+                        <button class="news-filter-btn" data-type="assam"><span>🏞️</span> Assam Farming</button>
+                        <button class="news-filter-btn" data-type="all"><span>📰</span> All News</button>
                     </div>
-                    
-                    <!-- News Search -->
                     <div class="news-search-bar">
                         <input type="text" id="newsSearchInput" placeholder="🔍 Search farming news..." class="news-search-input">
                         <button class="btn-news-search" id="newsSearchBtn">Search</button>
                     </div>
-                    
-                    <!-- Auto-refresh toggle -->
                     <div class="news-controls">
                         <label class="auto-refresh-toggle">
                             <input type="checkbox" id="autoRefreshNews" checked>
                             <span>🔄 Auto-refresh every 10 min</span>
                         </label>
                     </div>
-                    
-                    <!-- News Feed -->
                     <div class="news-feed" id="newsFeed">
                         <p class="news-hint">📡 Select a filter to load farming news...</p>
                     </div>
                 </section>
 
                 <!-- Report -->
-                <section class="report-section" id="reportSection">
-                    <div class="section-header"><h2>📄 Complete Report</h2><div><button class="btn-print" id="downloadReport">📥 Download</button> <button class="btn-print" id="printReport">🖨️ Print</button></div></div>
+                <section class="report-section glass-card rounded-xl p-md" id="reportSection">
+                    <div class="section-header">
+                        <h2 class="text-h2 font-h2">📄 Complete Report</h2>
+                        <div>
+                            <button class="btn-print" id="downloadReport">📥 Download</button>
+                            <button class="btn-print" id="printReport">🖨️ Print</button>
+                        </div>
+                    </div>
                     <div class="report-content" id="reportContent"></div>
                 </section>
-            </div>
+
+            </div><!-- end resultsState -->
+            </div><!-- end max-w-container-max -->
         </main>
     </div>
 
-    <footer class="app-footer">
-        <p>🌾 Smart Farming Decision System © 2026 | AI + Satellite + Weather + Sensors | Hackathon Project</p>
+    <footer class="py-8 border-t bg-slate-950 border-white/5 flex flex-col items-center gap-4 px-6 text-center" style="margin-left:420px">
+        <span class="text-emerald-500 font-bold">AgriPulse AI</span>
+        <div class="flex gap-6">
+            <a class="text-slate-500 hover:text-emerald-300 text-xs uppercase tracking-widest transition-opacity opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+            <a class="text-slate-500 hover:text-emerald-300 text-xs uppercase tracking-widest transition-opacity opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+        </div>
+        <p class="text-slate-500 text-xs uppercase tracking-widest opacity-80">© 2026 AgriPulse AI · Smart Farming Decision System · AI + Satellite + Weather + Sensors</p>
     </footer>
 
     <script src="/static/js/app.js?v=20260429-ui-fix"></script>

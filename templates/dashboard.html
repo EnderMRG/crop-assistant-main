@@ -1,587 +1,336 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html class="dark" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Smart Farming - Farm Dashboard">
-    <title>🌾 Smart Farming - Farm Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-    <style>
-        .dashboard-container { max-width: 1400px; margin: 0 auto; }
-        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-        .dashboard-header h1 { font-size: 1.8rem; }
-        .btn-logout { padding: 10px 20px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-        .btn-logout:hover { transform: translateY(-2px); }
-
-        .farm-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
-        .summary-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
-        .summary-label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
-        .summary-value { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        .crops-section { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin-bottom: 32px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .section-header h2 { font-size: 1.4rem; }
-        .btn-add-crop { padding: 10px 20px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-        .btn-add-crop:hover { transform: translateY(-2px); }
-
-        .crops-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-        .crop-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; transition: all 0.3s; }
-        .crop-card:hover { border-color: var(--text-accent); transform: translateY(-2px); }
-        .crop-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
-        .crop-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; font-size: 0.85rem; }
-        .crop-info-item { }
-        .crop-info-label { color: var(--text-muted); font-size: 0.75rem; }
-        .crop-info-value { color: var(--text-primary); font-weight: 600; }
-        .crop-status { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
-        .crop-status.growing { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-        .crop-status.harvesting { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
-        .crop-status.harvested { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
-        .crop-status.added { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
-
-        .crop-actions { display: flex; gap: 8px; margin-top: 12px; }
-        .btn-crop { flex: 1; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.3s; font-size: 0.85rem; }
-        .btn-crop:hover { background: var(--bg-input); }
-        .btn-analyze { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff; }
-        .btn-delete { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #fff; }
-
-        .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
-        .empty-icon { font-size: 48px; margin-bottom: 16px; }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); z-index: 1000; align-items: center; justify-content: center; }
-        .modal.show { display: flex; }
-        .modal-content { background: var(--bg-card); border-radius: 12px; padding: 32px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .modal-header h2 { font-size: 1.4rem; }
-        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
-
-        .form-group { margin-bottom: 16px; }
-        .form-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary); }
-        .form-input { width: 100%; padding: 10px 12px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-size: 0.9rem; }
-        .form-input:focus { outline: none; border-color: var(--text-accent); }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-        .btn-submit { width: 100%; padding: 12px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
-        .btn-submit:hover { transform: translateY(-2px); }
-
-        .analysis-result { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin-top: 24px; }
-        .analysis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
-        .analysis-item { background: var(--bg-card); padding: 12px; border-radius: 8px; }
-        .analysis-label { font-size: 0.75rem; color: var(--text-muted); }
-        .analysis-value { font-size: 1.4rem; font-weight: 700; color: var(--text-accent); }
-    </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta name="description" content="Smart Farming - Farm Dashboard"/>
+<title>AgriPulse AI — Farm Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-surface":"#dde4dd","primary-container":"#10b981","on-surface-variant":"#bbcabf","surface-container-high":"#242c27","secondary-container":"#0566d9","primary":"#4edea3","on-error":"#690005","surface-container-highest":"#2f3632","error-container":"#93000a","on-primary-container":"#00422b","error":"#ffb4ab","surface-container":"#1a211d","background":"#0e1511","secondary":"#adc6ff","surface":"#0e1511","on-error-container":"#ffdad6","outline-variant":"#3c4a42","primary-fixed":"#6ffbbe","on-primary":"#003824","surface-container-low":"#161d19","outline":"#86948a","on-secondary-container":"#e6ecff"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{md:"16px",lg:"24px",sm:"8px",gutter:"20px",xs:"4px",unit:"4px","container-max":"1280px",xl:"40px"},fontFamily:{"data-mono":["JetBrains Mono"],"coordinate-xs":["JetBrains Mono"],"body-base":["Inter"],h2:["Inter"],h1:["Inter"],"body-sm":["Inter"]},fontSize:{"coordinate-xs":["11px",{lineHeight:"1.2",fontWeight:"600"}],"data-mono":["14px",{lineHeight:"1.4",letterSpacing:"0.02em",fontWeight:"500"}],"body-base":["16px",{lineHeight:"1.6",fontWeight:"400"}],h2:["24px",{lineHeight:"1.3",fontWeight:"600"}],h1:["32px",{lineHeight:"1.2",fontWeight:"600"}],"body-sm":["14px",{lineHeight:"1.5",fontWeight:"400"}]}}}}
+</script>
+<style>
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+.glass-card{background:rgba(255,255,255,.03);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1)}
+.glow-emerald{box-shadow:0 0 20px rgba(16,185,129,.2)}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center}
+.modal.show{display:flex}
+input,select{background:#1a211d;border:1px solid #3c4a42;color:#dde4dd;border-radius:8px;padding:10px 12px;width:100%;font-family:'JetBrains Mono',monospace;font-size:.85rem;outline:none;transition:border-color .2s}
+input:focus,select:focus{border-color:#adc6ff}
+.crop-status{display:inline-block;padding:3px 10px;border-radius:9999px;font-size:.7rem;font-weight:700}
+.crop-status.growing{background:rgba(78,222,163,.15);color:#4edea3;border:1px solid rgba(78,222,163,.3)}
+.crop-status.harvesting{background:rgba(255,179,175,.15);color:#ffb3af;border:1px solid rgba(255,179,175,.3)}
+.crop-status.harvested{background:rgba(187,202,191,.1);color:#bbcabf;border:1px solid rgba(187,202,191,.2)}
+.crop-status.added{background:rgba(173,198,255,.15);color:#adc6ff;border:1px solid rgba(173,198,255,.3)}
+</style>
 </head>
-<body>
-    <!-- HEADER -->
-    <header class="app-header">
-        <div class="header-left">
-            <div class="logo">
-                <span class="logo-icon">🌾</span>
-                <div class="logo-text">
-                    <h1>Smart Farming</h1>
-                    <span class="logo-subtitle">Farm Management Dashboard</span>
-                </div>
-            </div>
-        </div>
-        <div class="header-right">
-            <a href="/" style="padding:8px 14px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.25);color:#a78bfa;border-radius:8px;font-size:0.82rem;font-weight:600;text-decoration:none;transition:all 0.2s;white-space:nowrap;margin-right:12px;" onmouseover="this.style.background='rgba(139,92,246,0.22)'" onmouseout="this.style.background='rgba(139,92,246,0.12)'">🚀 AI Analysis</a>
-            <button class="theme-toggle" id="themeToggle">🌙</button>
-            <button class="btn-logout" id="logoutBtn">🚪 Logout</button>
-        </div>
-    </header>
+<body class="bg-background text-on-surface font-body-base min-h-screen">
 
-    <main class="app-layout" style="display: block; padding: 40px 20px;">
-        <div class="dashboard-container">
-            <!-- Dashboard Header -->
-            <div class="dashboard-header">
-                <div>
-                    <h1 id="farmerName">Farmer's Farm</h1>
-                    <p id="farmLocation" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">📍 Loading...</p>
-                </div>
-                <button class="btn-logout" id="analyzeBtn" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); cursor: pointer;" onclick="window.location.href='/analysis'">📊 Analyze & Evaluate</button>
-            </div>
+<!-- TOP NAV -->
+<header class="fixed top-0 w-full border-b bg-slate-950/60 backdrop-blur-xl border-white/10 shadow-2xl shadow-emerald-900/20 flex justify-between items-center px-6 h-16 z-50">
+  <div class="flex items-center gap-6">
+    <span class="text-xl font-black tracking-tighter text-emerald-400">AgriPulse AI</span>
+    <nav class="hidden md:flex items-center gap-4">
+      <a href="/analysis" class="text-slate-400 hover:text-emerald-300 transition-colors text-sm font-medium">AI Analysis</a>
+      <a href="/dashboard" class="text-emerald-400 font-bold border-b-2 border-emerald-500 pb-0.5 text-sm">Dashboard</a>
+    </nav>
+  </div>
+  <div class="flex items-center gap-3">
+    <span class="flex items-center gap-2 px-3 py-1 glass-card rounded-full text-xs font-data-mono">
+      <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span> LIVE
+    </span>
+    <button id="logoutBtn" class="flex items-center gap-2 px-3 py-1.5 bg-red-900/30 border border-red-500/30 text-red-400 hover:bg-red-900/50 rounded-lg text-sm font-medium transition-all">
+      <span class="material-symbols-outlined text-[18px]">logout</span> Logout
+    </button>
+  </div>
+</header>
 
-            <!-- Farm Summary -->
-            <div class="farm-summary">
-                <div class="summary-card">
-                    <div class="summary-label">Total Land</div>
-                    <div class="summary-value" id="totalLand">—</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">hectares</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-label">Active Crops</div>
-                    <div class="summary-value" id="activeCrops">—</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">currently growing</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-label">Land Utilized</div>
-                    <div class="summary-value" id="landUtilized">—</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">hectares</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-label">Available Land</div>
-                    <div class="summary-value" id="availableLand">—</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">hectares</div>
-                </div>
-            </div>
+<!-- MAIN -->
+<main class="pt-24 px-6 pb-12 min-h-screen">
+  <div class="max-w-6xl mx-auto space-y-8">
 
-            <!-- Crops Section -->
-            <div class="crops-section">
-                <div class="section-header">
-                    <h2>🌾 Your Crops</h2>
-                    <button class="btn-add-crop" id="addCropBtn">➕ Add New Crop</button>
-                </div>
-
-                <div class="crops-grid" id="cropsGrid">
-                    <div class="empty-state">
-                        <div class="empty-icon">🌱</div>
-                        <p>Loading your crops...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Add Crop Modal -->
-    <div class="modal" id="addCropModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>➕ Add New Crop</h2>
-                <button class="modal-close" id="closeAddCropModal">✕</button>
-            </div>
-            <form id="addCropForm">
-                <div class="form-group">
-                    <label class="form-label">Crop Name</label>
-                    <input type="text" class="form-input" id="cropName" placeholder="e.g., Rice, Wheat, Maize" required>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Area (hectares)</label>
-                        <input type="number" class="form-input" id="cropArea" placeholder="0.5" step="0.1" min="0.1" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Soil pH</label>
-                        <input type="number" class="form-input" id="cropPh" placeholder="6.5" step="0.1" min="0" max="14" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Planting Date</label>
-                        <input type="date" class="form-input" id="cropPlantingDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Expected Harvest</label>
-                        <input type="date" class="form-input" id="cropHarvestDate" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Soil Nutrients</label>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Nitrogen (kg/ha)</label>
-                        <input type="number" class="form-input" id="cropN" placeholder="80" min="0" max="500" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Phosphorus (kg/ha)</label>
-                        <input type="number" class="form-input" id="cropP" placeholder="45" min="0" max="300" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Potassium (kg/ha)</label>
-                    <input type="number" class="form-input" id="cropK" placeholder="40" min="0" max="300" required>
-                </div>
-
-                <button type="submit" class="btn-submit">✅ Add Crop</button>
-            </form>
-        </div>
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+      <div>
+        <h1 id="farmerName" class="text-h1 font-h1 text-on-surface">Farm Dashboard</h1>
+        <p id="farmLocation" class="text-body-sm text-on-surface-variant mt-1 font-data-mono">Loading location...</p>
+      </div>
+      <button onclick="window.location.href='/analysis'" class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-white rounded-lg text-sm font-bold hover:brightness-110 transition-all active:scale-95">
+        <span class="material-symbols-outlined text-[18px]">analytics</span> AI Analysis
+      </button>
     </div>
 
-    <!-- Crop Analysis Modal -->
-    <div class="modal" id="analysisModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>📊 Crop Analysis</h2>
-                <button class="modal-close" id="closeAnalysisModal">✕</button>
-            </div>
-            <div id="analysisContent" style="max-height: 60vh; overflow-y: auto;">
-                <p style="text-align: center; color: var(--text-muted);">Loading analysis...</p>
-            </div>
+    <!-- Farm Summary -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-gutter">
+      <div class="glass-card p-lg rounded-xl">
+        <span class="text-coordinate-xs font-coordinate-xs text-on-surface-variant uppercase">Total Land</span>
+        <div class="mt-3"><span id="totalLand" class="text-4xl font-black text-primary">—</span><span class="text-sm text-on-surface-variant ml-1">ha</span></div>
+      </div>
+      <div class="glass-card p-lg rounded-xl">
+        <span class="text-coordinate-xs font-coordinate-xs text-on-surface-variant uppercase">Active Crops</span>
+        <div class="mt-3"><span id="activeCrops" class="text-4xl font-black text-secondary">—</span><span class="text-sm text-on-surface-variant ml-1">growing</span></div>
+      </div>
+      <div class="glass-card p-lg rounded-xl">
+        <span class="text-coordinate-xs font-coordinate-xs text-on-surface-variant uppercase">Land Utilized</span>
+        <div class="mt-3"><span id="landUtilized" class="text-4xl font-black text-primary">—</span><span class="text-sm text-on-surface-variant ml-1">ha</span></div>
+      </div>
+      <div class="glass-card p-lg rounded-xl">
+        <span class="text-coordinate-xs font-coordinate-xs text-on-surface-variant uppercase">Available</span>
+        <div class="mt-3"><span id="availableLand" class="text-4xl font-black text-on-surface-variant">—</span><span class="text-sm text-on-surface-variant ml-1">ha</span></div>
+      </div>
+    </section>
+
+    <!-- Crops Section -->
+    <section class="glass-card rounded-xl p-lg">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-h2 font-h2 text-on-surface">Your Crops</h2>
+        <button id="addCropBtn" class="bg-primary hover:bg-primary-fixed text-on-primary-container px-4 py-2 rounded-lg font-bold text-sm transition-all active:scale-95 flex items-center gap-2 glow-emerald">
+          <span class="material-symbols-outlined text-[18px]">add_circle</span> Add New Crop
+        </button>
+      </div>
+      <div id="cropsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+        <div class="col-span-full text-center py-12 text-on-surface-variant">
+          <span class="material-symbols-outlined text-5xl block mb-3 opacity-40">grass</span>
+          <p>Loading your crops...</p>
         </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ADD CROP MODAL -->
+<div class="modal" id="addCropModal">
+  <div class="glass-card w-full max-w-lg rounded-2xl p-xl shadow-2xl border-white/20 mx-4">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h2 class="text-h1 font-h1">Add New Crop</h2>
+        <p class="text-on-surface-variant text-body-sm mt-1">Initialize monitoring for a new field section.</p>
+      </div>
+      <button id="closeAddCropModal" class="p-1 hover:bg-white/10 rounded-full transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
     </div>
+    <form id="addCropForm" class="space-y-4">
+      <div>
+        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-widest block mb-2">Crop Name</label>
+        <input type="text" id="cropName" placeholder="e.g., Rice, Wheat, Maize" required/>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-xs font-bold text-on-surface-variant uppercase tracking-widest block mb-2">Area (hectares)</label>
+          <input type="number" id="cropArea" placeholder="0.5" step="0.1" min="0.1" required/>
+        </div>
+        <div>
+          <label class="text-xs font-bold text-on-surface-variant uppercase tracking-widest block mb-2">Soil pH</label>
+          <input type="number" id="cropPh" placeholder="6.5" step="0.1" min="0" max="14" required/>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-xs font-bold text-on-surface-variant uppercase tracking-widest block mb-2">Planting Date</label>
+          <input type="date" id="cropPlantingDate" required/>
+        </div>
+        <div>
+          <label class="text-xs font-bold text-on-surface-variant uppercase tracking-widest block mb-2">Expected Harvest</label>
+          <input type="date" id="cropHarvestDate" required/>
+        </div>
+      </div>
+      <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Soil Nutrients</p>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-xs text-on-surface-variant block mb-1">Nitrogen (kg/ha)</label>
+          <input type="number" id="cropN" placeholder="80" min="0" max="500" required/>
+        </div>
+        <div>
+          <label class="text-xs text-on-surface-variant block mb-1">Phosphorus (kg/ha)</label>
+          <input type="number" id="cropP" placeholder="45" min="0" max="300" required/>
+        </div>
+      </div>
+      <div>
+        <label class="text-xs text-on-surface-variant block mb-1">Potassium (kg/ha)</label>
+        <input type="number" id="cropK" placeholder="40" min="0" max="300" required/>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" id="cancelAddCrop" class="flex-1 py-3 rounded-lg font-bold border border-outline-variant hover:bg-white/5 transition-colors text-on-surface">Cancel</button>
+        <button type="submit" class="flex-1 py-3 rounded-lg font-bold bg-primary text-on-primary-container glow-emerald hover:brightness-110 active:scale-95 transition-all">Register Crop</button>
+      </div>
+    </form>
+  </div>
+</div>
 
-    <script>
-        // Theme Toggle
-        const themeToggle = document.getElementById('themeToggle');
-        const html = document.documentElement;
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        html.setAttribute('data-theme', savedTheme);
-        updateThemeIcon();
+<!-- ANALYSIS MODAL -->
+<div class="modal" id="analysisModal">
+  <div class="glass-card w-full max-w-2xl rounded-2xl p-xl shadow-2xl border-white/20 mx-4">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-h2 font-h2">Crop Analysis</h2>
+      <button id="closeAnalysisModal" class="p-1 hover:bg-white/10 rounded-full transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div id="analysisContent" style="max-height:65vh;overflow-y:auto">
+      <p class="text-center text-on-surface-variant py-8">Loading analysis...</p>
+    </div>
+  </div>
+</div>
 
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcon();
-        });
+<script>
+// Logout
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await fetch('/api/logout', { method: 'POST' });
+  window.location.href = '/login';
+});
 
-        function updateThemeIcon() {
-            const theme = html.getAttribute('data-theme');
-            themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
-        }
+// Load Farm Data
+async function loadFarmData() {
+  try {
+    const response = await fetch('/api/farm/info');
+    if (response.status === 401) { window.location.href = '/login'; return; }
+    const data = await response.json();
+    document.getElementById('farmerName').textContent = `${data.farmer.farmer_name}'s Farm`;
+    document.getElementById('farmLocation').textContent = `${data.farmer.village}, ${data.farmer.district}, ${data.farmer.state}`;
+    document.getElementById('totalLand').textContent = data.farm.total_land.toFixed(1);
+    const activeCrops = data.farm.crops.filter(c => c.status !== 'Harvested').length;
+    document.getElementById('activeCrops').textContent = activeCrops;
+    const utilizeLand = data.farm.crops.reduce((sum, c) => sum + c.area, 0);
+    document.getElementById('landUtilized').textContent = utilizeLand.toFixed(2);
+    document.getElementById('availableLand').textContent = (data.farm.total_land - utilizeLand).toFixed(2);
+    renderCrops(data.farm.crops, data.farm.total_land);
+  } catch (error) { console.error('Error loading farm data:', error); }
+}
 
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await fetch('/api/logout', { method: 'POST' });
-            window.location.href = '/login';
-        });
+function renderCrops(crops, totalLand) {
+  const grid = document.getElementById('cropsGrid');
+  if (crops.length === 0) {
+    grid.innerHTML = `<div class="col-span-full text-center py-12 text-on-surface-variant">
+      <span class="material-symbols-outlined text-5xl block mb-3 opacity-40">grass</span>
+      <p>No crops yet. Click "Add New Crop" to get started!</p></div>`;
+    return;
+  }
+  grid.innerHTML = crops.map(crop => {
+    const statusCls = crop.status.toLowerCase().replace(' ', '-');
+    return `<div class="glass-card rounded-xl overflow-hidden group hover:border-primary/40 transition-all duration-300">
+      <div class="p-md space-y-4">
+        <div class="flex justify-between items-start">
+          <h3 class="text-lg font-bold text-on-surface">${crop.name}</h3>
+          <span class="crop-status ${statusCls}">${crop.status}</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="bg-surface-container p-2 rounded-lg"><span class="text-on-surface-variant block">Area</span><span class="font-data-mono text-primary">${crop.area} ha</span></div>
+          <div class="bg-surface-container p-2 rounded-lg"><span class="text-on-surface-variant block">Soil pH</span><span class="font-data-mono text-primary">${crop.soil_ph}</span></div>
+          <div class="bg-surface-container p-2 rounded-lg"><span class="text-on-surface-variant block">Nitrogen</span><span class="font-data-mono text-secondary">${crop.nitrogen} kg/ha</span></div>
+          <div class="bg-surface-container p-2 rounded-lg"><span class="text-on-surface-variant block">Planted</span><span class="font-data-mono text-on-surface">${crop.planting_date}</span></div>
+        </div>
+        <div class="flex gap-2 pt-1">
+          <button onclick="analyzeCrop('${crop.id}','${crop.name}')" class="flex-1 bg-secondary-container text-white py-2 rounded-lg text-sm font-bold hover:brightness-110 transition-all flex items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">analytics</span> Analyze
+          </button>
+          <button onclick="deleteCrop('${crop.id}')" class="p-2 border border-outline-variant rounded-lg hover:bg-red-900/30 hover:border-red-500/40 transition-colors">
+            <span class="material-symbols-outlined text-error text-[18px]">delete</span>
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-        // Load Farm Data
-        async function loadFarmData() {
-            try {
-                const response = await fetch('/api/farm/info');
-                if (response.status === 401) {
-                    window.location.href = '/login';
-                    return;
-                }
-                const data = await response.json();
-                
-                // Update header
-                document.getElementById('farmerName').textContent = `${data.farmer.farmer_name}'s Farm`;
-                document.getElementById('farmLocation').textContent = `📍 ${data.farmer.village}, ${data.farmer.district}, ${data.farmer.state}`;
+// Add Crop Modal
+document.getElementById('addCropBtn').addEventListener('click', () => document.getElementById('addCropModal').classList.add('show'));
+document.getElementById('closeAddCropModal').addEventListener('click', () => document.getElementById('addCropModal').classList.remove('show'));
+document.getElementById('cancelAddCrop').addEventListener('click', () => document.getElementById('addCropModal').classList.remove('show'));
 
-                // Update summary
-                document.getElementById('totalLand').textContent = data.farm.total_land.toFixed(1);
-                const activeCrops = data.farm.crops.filter(c => c.status !== 'Harvested').length;
-                document.getElementById('activeCrops').textContent = activeCrops;
-                
-                const utilizeLand = data.farm.crops.reduce((sum, c) => sum + c.area, 0);
-                document.getElementById('landUtilized').textContent = utilizeLand.toFixed(2);
-                document.getElementById('availableLand').textContent = (data.farm.total_land - utilizeLand).toFixed(2);
+document.getElementById('addCropForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const cropData = {
+    name: document.getElementById('cropName').value,
+    area: parseFloat(document.getElementById('cropArea').value),
+    planting_date: document.getElementById('cropPlantingDate').value,
+    expected_harvest: document.getElementById('cropHarvestDate').value,
+    nitrogen: parseFloat(document.getElementById('cropN').value),
+    phosphorus: parseFloat(document.getElementById('cropP').value),
+    potassium: parseFloat(document.getElementById('cropK').value),
+    soil_ph: parseFloat(document.getElementById('cropPh').value)
+  };
+  try {
+    const response = await fetch('/api/farm/crop/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cropData) });
+    const result = await response.json();
+    if (response.ok) {
+      alert('✅ ' + result.message);
+      document.getElementById('addCropForm').reset();
+      document.getElementById('addCropModal').classList.remove('show');
+      loadFarmData();
+    } else { alert('❌ ' + result.error); }
+  } catch (error) { console.error('Error adding crop:', error); alert('Error adding crop'); }
+});
 
-                // Render crops
-                renderCrops(data.farm.crops, data.farm.total_land);
-            } catch (error) {
-                console.error('Error loading farm data:', error);
-            }
-        }
+async function deleteCrop(cropId) {
+  if (!confirm('Are you sure you want to delete this crop?')) return;
+  try {
+    const response = await fetch(`/api/farm/crop/${cropId}/delete`, { method: 'DELETE' });
+    const result = await response.json();
+    if (response.ok) { alert('✅ ' + result.message); loadFarmData(); }
+  } catch (error) { console.error('Error deleting crop:', error); }
+}
 
-        function renderCrops(crops, totalLand) {
-            const grid = document.getElementById('cropsGrid');
-            
-            if (crops.length === 0) {
-                grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-icon">🌱</div><p>No crops added yet. Click "Add New Crop" to get started!</p></div>';
-                return;
-            }
+async function analyzeCrop(cropId, cropName) {
+  document.getElementById('analysisModal').classList.add('show');
+  document.getElementById('analysisContent').innerHTML = `<p class="text-center text-on-surface-variant py-8">Analyzing ${cropName}...</p>`;
+  try {
+    const response = await fetch(`/api/farm/crop/${cropId}/analyze`, { method: 'POST' });
+    const data = await response.json();
+    renderAnalysis(data);
+  } catch (error) {
+    console.error('Error analyzing crop:', error);
+    document.getElementById('analysisContent').innerHTML = '<p class="text-error text-center py-8">Error analyzing crop</p>';
+  }
+}
 
-            grid.innerHTML = crops.map(crop => `
-                <div class="crop-card">
-                    <div class="crop-name">${crop.name}</div>
-                    <div class="crop-status ${crop.status.toLowerCase().replace(' ', '-')}">${crop.status}</div>
-                    
-                    <div class="crop-info">
-                        <div class="crop-info-item">
-                            <div class="crop-info-label">Area</div>
-                            <div class="crop-info-value">${crop.area} ha</div>
-                        </div>
-                        <div class="crop-info-item">
-                            <div class="crop-info-label">Soil pH</div>
-                            <div class="crop-info-value">${crop.soil_ph}</div>
-                        </div>
-                        <div class="crop-info-item">
-                            <div class="crop-info-label">Nitrogen</div>
-                            <div class="crop-info-value">${crop.nitrogen} kg/ha</div>
-                        </div>
-                        <div class="crop-info-item">
-                            <div class="crop-info-label">Phosphorus</div>
-                            <div class="crop-info-value">${crop.phosphorus} kg/ha</div>
-                        </div>
-                        <div class="crop-info-item">
-                            <div class="crop-info-label">Potassium</div>
-                            <div class="crop-info-value">${crop.potassium} kg/ha</div>
-                        </div>
-                        <div class="crop-info-item">
-                            <div class="crop-info-label">Planted</div>
-                            <div class="crop-info-value">${crop.planting_date}</div>
-                        </div>
-                    </div>
+function renderAnalysis(data) {
+  const crop = data.crop, analysis = data.analysis, weather = analysis.weather || {}, satellite = analysis.satellite || {};
+  let html = `<div class="space-y-4">
+    <h3 class="text-lg font-bold text-on-surface border-b border-outline-variant pb-2">${crop.name} — Comprehensive Analysis</h3>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+      ${metricCard('Estimated Yield', analysis.yield.tons_per_ha.toFixed(2), 'tons/hectare', '#4edea3')}
+      ${metricCard('Yield kg/ha', analysis.yield.kg_per_ha.toFixed(0), 'kg/hectare', '#4edea3')}
+      ${metricCard('Market Price', '₹' + analysis.pricing.price_per_quintal.toFixed(0), '/quintal', '#adc6ff')}
+      ${metricCard('MSP', '₹' + analysis.pricing.msp.toFixed(0), '/quintal', '#adc6ff')}
+      ${metricCard('Expected Profit', '₹' + (analysis.pricing.profit/1000).toFixed(1)+'K', '/hectare', '#4edea3')}
+      ${metricCard('NDVI Index', (satellite.ndvi||0).toFixed(2), satellite.health||'Healthy', '#adc6ff')}
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      ${metricCard('Temperature', (weather.temperature||0).toFixed(1)+'°C', '', '#ffb3af')}
+      ${metricCard('Humidity', (weather.humidity||0).toFixed(1)+'%', '', '#adc6ff')}
+      ${metricCard('Rainfall', (weather.rainfall||0).toFixed(1)+'mm', '', '#adc6ff')}
+      ${metricCard('Condition', weather.condition||'Clear', '', '#4edea3')}
+    </div>
+    ${analysis.advisory && analysis.advisory.advisories ? `
+    <div class="space-y-2">
+      ${analysis.advisory.advisories.map(adv => `
+        <div style="border-left:4px solid ${adv.severity==='critical'?'#ef4444':adv.severity==='warning'?'#f59e0b':'#4edea3'}" class="bg-surface-container p-3 rounded-r-lg">
+          <div class="font-bold text-sm" style="color:${adv.severity==='critical'?'#ef4444':adv.severity==='warning'?'#f59e0b':'#4edea3'}">${adv.icon||'💡'} ${adv.title}</div>
+          <p class="text-body-sm text-on-surface-variant mt-1">${adv.message}</p>
+        </div>`).join('')}
+      <div class="border-l-4 border-secondary bg-surface-container p-3 rounded-r-lg">
+        <div class="font-bold text-secondary text-sm mb-1">Summary</div>
+        <p class="text-body-sm text-on-surface-variant">${analysis.advisory.overall_summary||'Overall conditions appear normal.'}</p>
+      </div>
+    </div>` : '<p class="text-on-surface-variant text-sm">Advisory not available</p>'}
+  </div>`;
+  document.getElementById('analysisContent').innerHTML = html;
+}
 
-                    <div class="crop-actions">
-                        <button class="btn-crop btn-analyze" onclick="analyzeCrop('${crop.id}', '${crop.name}')">📊 Analyze</button>
-                        <button class="btn-crop btn-delete" onclick="deleteCrop('${crop.id}')">🗑️ Delete</button>
-                    </div>
-                </div>
-            `).join('');
-        }
+function metricCard(label, value, unit, color) {
+  return `<div class="bg-surface-container rounded-lg p-3">
+    <div class="text-coordinate-xs text-on-surface-variant">${label}</div>
+    <div class="font-data-mono font-bold text-lg mt-1" style="color:${color}">${value}</div>
+    ${unit ? `<div class="text-[10px] text-on-surface-variant mt-0.5">${unit}</div>` : ''}
+  </div>`;
+}
 
-        // Add Crop Modal
-        document.getElementById('addCropBtn').addEventListener('click', () => {
-            document.getElementById('addCropModal').classList.add('show');
-        });
+document.getElementById('closeAnalysisModal').addEventListener('click', () => document.getElementById('analysisModal').classList.remove('show'));
 
-        document.getElementById('closeAddCropModal').addEventListener('click', () => {
-            document.getElementById('addCropModal').classList.remove('show');
-        });
-
-        document.getElementById('addCropForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const cropData = {
-                name: document.getElementById('cropName').value,
-                area: parseFloat(document.getElementById('cropArea').value),
-                planting_date: document.getElementById('cropPlantingDate').value,
-                expected_harvest: document.getElementById('cropHarvestDate').value,
-                nitrogen: parseFloat(document.getElementById('cropN').value),
-                phosphorus: parseFloat(document.getElementById('cropP').value),
-                potassium: parseFloat(document.getElementById('cropK').value),
-                soil_ph: parseFloat(document.getElementById('cropPh').value)
-            };
-
-            try {
-                const response = await fetch('/api/farm/crop/add', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(cropData)
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    alert('✅ ' + result.message);
-                    document.getElementById('addCropForm').reset();
-                    document.getElementById('addCropModal').classList.remove('show');
-                    loadFarmData();
-                } else {
-                    alert('❌ ' + result.error);
-                }
-            } catch (error) {
-                console.error('Error adding crop:', error);
-                alert('Error adding crop');
-            }
-        });
-
-        // Delete Crop
-        async function deleteCrop(cropId) {
-            if (!confirm('Are you sure you want to delete this crop?')) return;
-
-            try {
-                const response = await fetch(`/api/farm/crop/${cropId}/delete`, { method: 'DELETE' });
-                const result = await response.json();
-
-                if (response.ok) {
-                    alert('✅ ' + result.message);
-                    loadFarmData();
-                }
-            } catch (error) {
-                console.error('Error deleting crop:', error);
-            }
-        }
-
-        // Analyze Crop
-        async function analyzeCrop(cropId, cropName) {
-            document.getElementById('analysisModal').classList.add('show');
-            document.getElementById('analysisContent').innerHTML = '<p style="text-align: center; color: var(--text-muted);">Analyzing ' + cropName + '...</p>';
-
-            try {
-                const response = await fetch(`/api/farm/crop/${cropId}/analyze`, { method: 'POST' });
-                const data = await response.json();
-
-                renderAnalysis(data);
-            } catch (error) {
-                console.error('Error analyzing crop:', error);
-                document.getElementById('analysisContent').innerHTML = '<p style="color: red;">Error analyzing crop</p>';
-            }
-        }
-
-        function renderAnalysis(data) {
-            const crop = data.crop;
-            const analysis = data.analysis;
-            const weather = analysis.weather || {};
-            const satellite = analysis.satellite || {};
-
-            let html = `
-                <div class="analysis-result">
-                    <h3 style="margin-bottom: 20px; font-size: 1.3rem;">🌾 ${crop.name} - Comprehensive Analysis</h3>
-                    
-                    <!-- KEY METRICS -->
-                    <div style="background: var(--bg-secondary); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
-                        <h4 style="margin-bottom: 12px;">📊 Key Performance Metrics</h4>
-                        <div class="analysis-grid">
-                            <div class="analysis-item">
-                                <div class="analysis-label">Estimated Yield</div>
-                                <div class="analysis-value">${analysis.yield.tons_per_ha.toFixed(2)}</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">tons/hectare</div>
-                            </div>
-                            <div class="analysis-item">
-                                <div class="analysis-label">Yield (kg/ha)</div>
-                                <div class="analysis-value">${analysis.yield.kg_per_ha.toFixed(0)}</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">kg/hectare</div>
-                            </div>
-                            <div class="analysis-item">
-                                <div class="analysis-label">Market Price</div>
-                                <div class="analysis-value">₹${analysis.pricing.price_per_quintal.toFixed(0)}</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">per quintal</div>
-                            </div>
-                            <div class="analysis-item">
-                                <div class="analysis-label">MSP (Min. Support Price)</div>
-                                <div class="analysis-value">₹${analysis.pricing.msp.toFixed(0)}</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">per quintal</div>
-                            </div>
-                            <div class="analysis-item">
-                                <div class="analysis-label">Expected Profit</div>
-                                <div class="analysis-value" style="color: #22c55e;">₹${(analysis.pricing.profit / 1000).toFixed(1)}K</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">per hectare</div>
-                            </div>
-                            <div class="analysis-item">
-                                <div class="analysis-label">Price per Ton</div>
-                                <div class="analysis-value">₹${analysis.pricing.price_per_ton.toFixed(0)}</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">per ton</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SATELLITE & SENSOR DATA -->
-                    <div style="background: var(--bg-secondary); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
-                        <h4 style="margin-bottom: 12px;">🛰️ Satellite & Sensor Data (NDVI)</h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-                            <div style="background: var(--bg-card); padding: 12px; border-radius: 6px; border-left: 3px solid #3b82f6;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">NDVI Index</div>
-                                <div style="font-size: 1.2rem; font-weight: 700; color: #3b82f6;">${(satellite.ndvi || 0).toFixed(2)}</div>
-                            </div>
-                            <div style="background: var(--bg-card); padding: 12px; border-radius: 6px; border-left: 3px solid ${satellite.color || '#22c55e'};">
-                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">Crop Health</div>
-                                <div style="font-size: 1.1rem; font-weight: 700; color: ${satellite.color || '#22c55e'};">${satellite.health || 'Healthy'}</div>
-                            </div>
-                            <div style="background: var(--bg-card); padding: 12px; border-radius: 6px; border-left: 3px solid #f59e0b;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">Data Source</div>
-                                <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">Planet Labs</div>
-                            </div>
-                        </div>
-                        <p style="margin-top: 10px; font-size: 0.85rem; color: var(--text-secondary); background: var(--bg-card); padding: 8px; border-radius: 4px;">
-                            <strong>NDVI Interpretation:</strong> Values range from -1 to 1. Higher values (>0.6) indicate healthier vegetation. Values below 0.3 suggest crop stress.
-                        </p>
-                    </div>
-
-                    <!-- WEATHER CONDITIONS -->
-                    <div style="background: var(--bg-secondary); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
-                        <h4 style="margin-bottom: 12px;">🌤️ Current Weather Conditions</h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
-                            <div style="background: var(--bg-card); padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Temperature</div>
-                                <div style="font-size: 1.3rem; font-weight: 700;">${(weather.temperature || 0).toFixed(1)}°C</div>
-                            </div>
-                            <div style="background: var(--bg-card); padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Humidity</div>
-                                <div style="font-size: 1.3rem; font-weight: 700;">${(weather.humidity || 0).toFixed(1)}%</div>
-                            </div>
-                            <div style="background: var(--bg-card); padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Rainfall</div>
-                                <div style="font-size: 1.3rem; font-weight: 700;">${(weather.rainfall || 0).toFixed(1)}mm</div>
-                            </div>
-                            <div style="background: var(--bg-card); padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Condition</div>
-                                <div style="font-size: 1rem; font-weight: 700;">${weather.condition || 'Clear'}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SOIL NUTRIENTS -->
-                    <div style="background: var(--bg-secondary); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
-                        <h4 style="margin-bottom: 12px;">🧪 Soil Nutrients & Properties</h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;">
-                            <div style="background: var(--bg-card); padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Nitrogen (N)</div>
-                                <div style="font-size: 1.2rem; font-weight: 700;">${crop.nitrogen}</div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">kg/ha</div>
-                            </div>
-                            <div style="background: var(--bg-card); padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Phosphorus (P)</div>
-                                <div style="font-size: 1.2rem; font-weight: 700;">${crop.phosphorus}</div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">kg/ha</div>
-                            </div>
-                            <div style="background: var(--bg-card); padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Potassium (K)</div>
-                                <div style="font-size: 1.2rem; font-weight: 700;">${crop.potassium}</div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">kg/ha</div>
-                            </div>
-                            <div style="background: var(--bg-card); padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Soil pH</div>
-                                <div style="font-size: 1.2rem; font-weight: 700;">${crop.soil_ph}</div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">0-14 scale</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- AI ADVISORY & RECOMMENDATIONS -->
-                    <div style="background: var(--bg-secondary); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
-                        <h4 style="margin-bottom: 12px;">🧠 AI-Powered Advisory & Recommendations</h4>
-                        ${analysis.advisory && analysis.advisory.advisories ? `
-                            <div style="margin-bottom: 12px;">
-                                ${analysis.advisory.advisories.map(adv => `
-                                    <div style="background: var(--bg-card); padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid ${adv.severity === 'critical' ? '#ef4444' : adv.severity === 'warning' ? '#f59e0b' : '#22c55e'}; border-top: ${adv.severity === 'critical' ? '2px solid #ef4444' : ''};">
-                                        <div style="font-weight: 700; margin-bottom: 4px; color: ${adv.severity === 'critical' ? '#ef4444' : adv.severity === 'warning' ? '#f59e0b' : '#22c55e'};">
-                                            ${adv.icon || '💡'} ${adv.title}
-                                        </div>
-                                        <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">${adv.message}</p>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            <div style="background: var(--bg-card); padding: 12px; border-radius: 6px; border-left: 4px solid #3b82f6; margin-top: 12px;">
-                                <div style="font-weight: 700; color: #3b82f6; margin-bottom: 6px;">📋 Summary</div>
-                                <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">${analysis.advisory.overall_summary || 'Overall conditions appear normal.'}</p>
-                            </div>
-                        ` : '<p style="color: var(--text-muted);">Advisory not available</p>'}
-                    </div>
-
-                    <!-- CROP DETAILS -->
-                    <div style="background: var(--bg-secondary); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
-                        <h4 style="margin-bottom: 12px;">📅 Crop Timeline</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div style="background: var(--bg-card); padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Planting Date</div>
-                                <div style="font-size: 1rem; font-weight: 700;">${crop.planting_date || 'N/A'}</div>
-                            </div>
-                            <div style="background: var(--bg-card); padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Current Status</div>
-                                <div style="font-size: 1rem; font-weight: 700;">${crop.status || 'Active'}</div>
-                            </div>
-                            <div style="background: var(--bg-card); padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Area</div>
-                                <div style="font-size: 1rem; font-weight: 700;">${crop.area} hectares</div>
-                            </div>
-                            <div style="background: var(--bg-card); padding: 10px; border-radius: 6px;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">Expected Harvest</div>
-                                <div style="font-size: 1rem; font-weight: 700;">${crop.harvest_date || 'TBD'}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- INFO BOX -->
-                    <div style="background: rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 6px; border-left: 4px solid #3b82f6;">
-                        <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
-                            <strong>ℹ️ Analysis Information:</strong> This comprehensive analysis combines satellite imagery, weather data, soil parameters, and ML models to provide actionable insights. Recommendations are updated based on real-time conditions.
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('analysisContent').innerHTML = html;
-        }
-
-        document.getElementById('closeAnalysisModal').addEventListener('click', () => {
-            document.getElementById('analysisModal').classList.remove('show');
-        });
-
-        // Initial load
-        loadFarmData();
-    </script>
+loadFarmData();
+</script>
 </body>
 </html>
